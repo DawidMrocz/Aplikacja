@@ -1,0 +1,50 @@
+version: '3.4'
+
+services:
+  usermicroservice:
+    image: ${DOCKER_REGISTRY-}usermicroservice
+    build:
+      context: .
+      dockerfile: UserMicroservice/Dockerfile
+
+  raportsmicroservice:
+    image: ${DOCKER_REGISTRY-}raportsmicroservice
+    build:
+      context: .
+      dockerfile: RaportsMicroservice/Dockerfile
+
+
+  jobmicroservice:
+    image: ${DOCKER_REGISTRY-}jobmicroservice
+    build:
+      context: .
+      dockerfile: JobMicroservice/Dockerfile
+
+
+  inboxmicroservice:
+    image: ${DOCKER_REGISTRY-}inboxmicroservice
+    build:
+      context: .
+      dockerfile: InboxMicroservice/Dockerfile
+
+
+  catsgrpcmicroservice:
+    image: ${DOCKER_REGISTRY-}catsgrpcmicroservice
+    build:
+      context: .
+      dockerfile: CatsGrpcMicroservice/Dockerfile
+
+
+  catsapimicroservice:
+    image: ${DOCKER_REGISTRY-}catsapimicroservice
+    build:
+      context: .
+      dockerfile: CatsApiMicroservice/Dockerfile
+
+
+  apigateway:
+    image: ${DOCKER_REGISTRY-}apigateway
+    build:
+      context: .
+      dockerfile: ApiGateway/Dockerfile
+
