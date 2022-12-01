@@ -7,6 +7,7 @@ namespace JobMicroservice.Models
     public class JobDbContext : DbContext
     {
         public DbSet<Job> Jobs { get; set; }
+        public DbSet<UserJob> UserJobs { get; set; }
 
         public JobDbContext(DbContextOptions<JobDbContext> options)
         : base(options)

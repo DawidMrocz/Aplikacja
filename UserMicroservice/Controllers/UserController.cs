@@ -9,7 +9,7 @@ using UserMicroserivce.Dtos;
 using UserMicroserivce.Queries;
 using UserMicroservice.Dtos;
 using UserMicroservice.Entities;
-using UserMicroservice.Repositories;
+using UserMicroservice.GrpcService;
 
 namespace UserMicroservice.Controllers
 {

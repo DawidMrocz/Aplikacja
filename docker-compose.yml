@@ -6,12 +6,20 @@ services:
     build:
       context: .
       dockerfile: UserMicroservice/Dockerfile
+    networks:
+      - my-network
+    depends_on:
+      - db
 
   raportsmicroservice:
     image: ${DOCKER_REGISTRY-}raportsmicroservice
     build:
       context: .
       dockerfile: RaportsMicroservice/Dockerfile
+    networks:
+      - my-network
+    depends_on:
+      - db
 
 
   jobmicroservice:
@@ -19,6 +27,10 @@ services:
     build:
       context: .
       dockerfile: JobMicroservice/Dockerfile
+    networks:
+      - my-network
+    depends_on:
+      - db
 
 
   inboxmicroservice:
@@ -26,6 +38,10 @@ services:
     build:
       context: .
       dockerfile: InboxMicroservice/Dockerfile
+    networks:
+      - my-network
+    depends_on:
+      - db
 
 
   catsgrpcmicroservice:
@@ -33,6 +49,10 @@ services:
     build:
       context: .
       dockerfile: CatsGrpcMicroservice/Dockerfile
+    networks:
+      - my-network
+    depends_on:
+      - db
 
 
   catsapimicroservice:
@@ -40,6 +60,10 @@ services:
     build:
       context: .
       dockerfile: CatsApiMicroservice/Dockerfile
+    networks:
+      - my-network
+    depends_on:
+      - db
 
 
   apigateway:
@@ -47,4 +71,44 @@ services:
     build:
       context: .
       dockerfile: ApiGateway/Dockerfile
+    networks:
+      - my-network
+    depends_on:
+      - db
+
+  db:
+    image: "mcr.microsoft.com/mssql/server:2022-latest"
+    ports:
+      - "1433:1433"
+    environment:
+      MSSQL_SA_PASSWORD: "S3cur3P@ssW0rd!"
+      ACCEPT_EULA: "Y"
+    networks:
+      - my-network
+
+  redis:
+    image: 'bitnami/redis:latest'
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+    networks:
+      - my-network
+
+  rabbitmq:
+    image: rabbitmq:management
+    container_name: rabbitmq
+    ports:
+        - 5672:5672
+        - 15672:15672
+    volumes:
+        - rabbitmqdata:/var/log/rabbitmq
+    hostname: "rabbitmq"
+    networks:
+        - my-network
+
+volumes:
+  rabbitmqdata:
+
+networks:
+  my-network:
+    external: true
 

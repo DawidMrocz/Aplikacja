@@ -1,3 +1,4 @@
+using CatsGrpcMicroservice.Protos;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using MassTransit;
@@ -12,6 +13,7 @@ using System.Text;
 using UserMicroserivce;
 using UserMicroserivce.Commands;
 using UserMicroservice.Entities;
+using UserMicroservice.GrpcService;
 using UserMicroservice.Models;
 using UserMicroservice.Repositories;
 
@@ -40,6 +42,10 @@ builder.Services.AddStackExchangeRedisCache(options =>
     options.Configuration = builder.Configuration.GetConnectionString("Redis");
     options.InstanceName = "SampleInstance";
 });
+
+builder.Services.AddGrpcClient<CatsProtoService.CatsProtoServiceClient>
+                        (o => o.Address = new Uri("http://catsgrpcmicroservice:80"));
+builder.Services.AddScoped<IUserGrpcService, UserGrpcService>();
 
 builder.Services.AddControllers().AddFluentValidation();
 

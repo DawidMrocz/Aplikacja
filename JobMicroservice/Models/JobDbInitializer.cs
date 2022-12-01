@@ -26,7 +26,10 @@ namespace JobMicroservice.Models
                     Gpdm=1,
                     ProjectNumber="LASDl",
                     Client="TOYOTA",
-                    SapText="sap text",
+                    ProjectName="sap text",
+                    Status="2D",
+                    Received="15.22.2022",
+                    
                 },
                 new Job()
                 {
@@ -40,7 +43,10 @@ namespace JobMicroservice.Models
                     Gpdm = 1,
                     ProjectNumber = "LASDl",
                     Client = "TOYOTA",
-                    SapText = "sap text",
+                    ProjectName = "sap text",
+                    Status = "2D",
+                    Received="20.11.2022",
+                    DueDate="25.11.2022"
                 },
                 new Job()
                 {
@@ -54,8 +60,9 @@ namespace JobMicroservice.Models
                     Gpdm = 1,
                     ProjectNumber = "LASDl",
                     Client = "TOYOTA",
-                    SapText = "sap text",
-
+                    ProjectName = "sap text",
+                    Status = "2D",
+                    Received = "20.11.2022",
                 }
             );
         }

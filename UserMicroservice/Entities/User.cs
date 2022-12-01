@@ -9,21 +9,21 @@ namespace UserMicroservice.Entities
         public int UserId { get; set; }
 
         [Required(ErrorMessage = "You must provide a Name")]
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
         [Required(ErrorMessage = "You must provide a password")]
-        public string PasswordHash { get; set; }
+        public string? PasswordHash { get; set; }
 
         [EmailAddress]
         [Required(ErrorMessage = "You must provide a Email")]
-        public string Email { get; set; }
+        public string? Email { get; set; }
 
         [Required(ErrorMessage = "You must provide a CCtr")]
-        public string CCtr { get; set; }
+        public string? CCtr { get; set; }
 
         [Required(ErrorMessage = "You must provide a ActTyp")]
-        public string ActTyp { get; set; }
-        public string Role { get; set; }
+        public string? ActTyp { get; set; }
+        public string? Role { get; set; }
         public string? Photo { get; set; }
     }
 }

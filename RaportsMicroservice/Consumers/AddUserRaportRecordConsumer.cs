@@ -1,18 +1,18 @@
-﻿using MassTransit;
+﻿using InboxMicroservice.Contracts.UserRaportRecordContracts;
+using MassTransit;
 using MediatR;
-using RaportsMicroservice.Commands;
-using RaportsMicroservice.Contracts;
+using RaportsMicroservice.Commands.UserRaportRecordCommands;
 
 namespace RaportsMicroservice.Consumers
 {
-    public class AddUserRaportRecordConsumer : IConsumer<AddUserRaportRecordItem>
+    public class AddUserRaportRecordConsumer : IConsumer<AddUserRaportRecord>
     {
         private readonly IMediator _mediator;
         public AddUserRaportRecordConsumer(IMediator mediator)
         {
             _mediator = mediator;
         }
-        public async Task Consume(ConsumeContext<AddUserRaportRecordItem> context)
+        public async Task Consume(ConsumeContext<AddUserRaportRecord> context)
         {
             AddUserRaportRecordCommand addUserRaportRecordCommand = new AddUserRaportRecordCommand()
             {

@@ -16,22 +16,15 @@ namespace InboxMicroservice.Models
             modelBuilder.Entity<Inbox>().HasData(
                 new Inbox
                 {
-                    Id = 1,
+                    InboxId = 1,
                     UserId = 1,
                     Name = "bartszap",
                     Photo = "PHtoto",
                 },
                 new Inbox
                 {
-                    Id = 2,
+                    InboxId = 2,
                     UserId = 2,
-                    Name = "bartszap",
-                    Photo = "PHtoto",
-                },
-                new Inbox
-                {
-                    Id = 3,
-                    UserId = 3,
                     Name = "bartszap",
                     Photo = "PHtoto",
                 }
@@ -39,7 +32,7 @@ namespace InboxMicroservice.Models
             modelBuilder.Entity<InboxItem>().HasData(
                 new InboxItem
                 {
-                    Id = 1,
+                    InboxItemId = 1,
                     JobDescription = "Create drawing",
                     JobId=1,
                     System = "Catia",
@@ -50,16 +43,18 @@ namespace InboxMicroservice.Models
                     Gpdm = 1,
                     ProjectNumber = "LASDl",
                     Client = "TOYOTA",
-                    SapText = "sap text",
+                    ProjectName = "sap text",
                     Status = "2D/3D",
                     Components = 0,
                     DrawingsComponents = 0,
                     DrawingsAssembly = 0,
-                    InboxId=1
+                    InboxId=1,
+                    Received="data",
+                    Type="jakis typ"
                 },
                 new InboxItem
                 {
-                    Id = 2,
+                    InboxItemId = 2,
                     JobDescription = "Create drawing",
                     JobId = 2,
                     Type = "2D",
@@ -71,16 +66,17 @@ namespace InboxMicroservice.Models
                     Gpdm = 1,
                     ProjectNumber = "LASDl",
                     Client = "TOYOTA",
-                    SapText = "sap text",
+                    ProjectName = "sap text",
                     Status = "2D/3D",
                     Components = 0,
                     DrawingsComponents = 0,
                     DrawingsAssembly = 0,
-                    InboxId = 2
+                    InboxId = 2,
+                    Received = "data"
                 },
                 new InboxItem
                 {
-                    Id = 3,
+                    InboxItemId = 3,
                     JobDescription = "Create drawing",
                     JobId = 3,
                     Type = "2D",
@@ -92,12 +88,13 @@ namespace InboxMicroservice.Models
                     Gpdm = 1,
                     ProjectNumber = "LASDl",
                     Client = "TOYOTA",
-                    SapText = "sap text",
+                    ProjectName = "sap text",
                     Status = "2D/3D",
                     Components = 0,
                     DrawingsComponents = 0,
                     DrawingsAssembly = 0,
-                    InboxId = 1
+                    InboxId = 1,
+                    Received = "data"
                 }
             );
         }

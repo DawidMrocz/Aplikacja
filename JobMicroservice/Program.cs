@@ -1,3 +1,4 @@
+using JobMicroservice.Consumers;
 using JobMicroservice.Models;
 using JobMicroservice.Repositories;
 using JobMicroservice.Settings;
@@ -42,14 +43,16 @@ builder.Services.AddDbContext<JobDbContext>(options =>
 });
 var rabbitMqSettings = builder.Configuration.GetSection(nameof(RabbitMqSettings)).Get<RabbitMqSettings>();
 
-//builder.Services.AddMassTransit(busConfigurator =>
-//{
-// busConfigurator.SetKebabCaseEndpointNameFormatter();
-// busConfigurator.UsingRabbitMq((context, busFactoryConfigurator) =>
-// {
-//     busFactoryConfigurator.Host(rabbitMqSettings.Uri, hostConfgurator => { });
-// });
-//});
+builder.Services.AddMassTransit(busConfigurator =>
+{
+    busConfigurator.SetKebabCaseEndpointNameFormatter();
+    busConfigurator.AddConsumer<UpdateJobFromInboxConsumer>();
+    busConfigurator.AddConsumer<DeleteUserJobFromInboxConsumer>();
+    busConfigurator.UsingRabbitMq((context, busFactoryConfigurator) =>
+ {
+     busFactoryConfigurator.Host(rabbitMqSettings.Uri, hostConfgurator => { });
+ });
+});
 
 builder.Services.AddControllersWithViews()
     .AddNewtonsoftJson(options =>

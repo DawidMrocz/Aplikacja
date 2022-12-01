@@ -16,7 +16,7 @@ namespace InboxMicroservice.Models
         {
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(InboxConfiguration).Assembly);
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(InboxItemConfiguration).Assembly);
-            new InboxDbInitializer(modelBuilder).Seed();
+           // new InboxDbInitializer(modelBuilder).Seed();
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

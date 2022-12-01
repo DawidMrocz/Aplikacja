@@ -10,7 +10,13 @@ namespace UserMicroservice.Repositories
     public interface IUserRepository
     {
         public Task<UserDto> GetProfile(GetProfileQuery command);
+
         public Task<String> LoginUser(LoginUserQuery command);
+        public Task<String> ForgotPassword();
+        public Task<String> ChangePassword();
+        public Task<String> ChangeRole();
+
+
         public Task<User> CreateUser(CreateUserCommand command);
         public Task<bool> DeleteUser(DeleteUserCommand command);
         public Task<User> UpdateUser(UpdateUserCommand command);

@@ -4,9 +4,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Distributed;
 using JobMicroservice.Entities;
 using JobMicroservice.Models;
-using JobMicroservice.Contracts;
 using JobMicroservice.Extensions;
 using JobMicroservice.Queries;
+using JobMicroservice.Contracts.InboxItemContracts;
 
 namespace JobMicroservice.Repositories
 {
@@ -41,10 +41,19 @@ namespace JobMicroservice.Repositories
                 itemToAdd.Gpdm,
                 itemToAdd.ProjectNumber,
                 itemToAdd.Client,
-                itemToAdd.SapText,
-                itemToAdd.Status
+                itemToAdd.ProjectName,
+                itemToAdd.Status,
+                itemToAdd.DueDate,
+                itemToAdd.Received
                 );
-            
+            UserJob userJob = new UserJob()
+            {
+                UserId = command.UserId,
+                JobId = itemToAdd.JobId,
+                Name = command.Name
+            };
+            await _context.UserJobs.AddAsync(userJob);
+            await _context.SaveChangesAsync();
             await _publishEndpoint.Publish(item);
             return true;
         }
@@ -67,9 +76,10 @@ namespace JobMicroservice.Repositories
                 Engineer = command.Engineer,
                 Ecm = command.Ecm,
                 Gpdm = command.Gpdm,
+                Received = command.Received,
                 Status = command.Status,
                 Client = command.Client,
-                SapText = command.SapText,
+                ProjectName = command.ProjectName,
             };
             await _context.Jobs.AddAsync(newJob);
             await _context.SaveChangesAsync();
@@ -86,9 +96,9 @@ namespace JobMicroservice.Repositories
             return true;
         }
 
-        public async Task<Job> UpdateJob(UpdateJobCommand updatedJob, int id)
+        public async Task<Job> UpdateJob(UpdateJobCommand updatedJob)
         {
-            var currentTask = await _context.Jobs.SingleAsync(r => r.JobId == id);
+            var currentTask = await _context.Jobs.SingleAsync(r => r.JobId == updatedJob.JobId);
 
             currentTask.JobDescription = updatedJob.JobDescription;
             currentTask.Type = updatedJob.Type;
@@ -96,34 +106,41 @@ namespace JobMicroservice.Repositories
             currentTask.ProjectNumber = updatedJob.ProjectNumber;
             currentTask.Link = updatedJob.Link;
             currentTask.Engineer = updatedJob.Engineer;
+            currentTask.Received = updatedJob.Received;
             currentTask.Ecm = updatedJob.Ecm;
             currentTask.Gpdm = updatedJob.Gpdm;
-            currentTask.Status = updatedJob.Status;
             currentTask.Client = updatedJob.Client;
-            currentTask.SapText = updatedJob.SapText;
+            currentTask.DueDate = updatedJob.DueDate;
 
             _context.SaveChanges();
             return currentTask;
         }
 
-        public async Task<Job> UpdateJob(UpdateJobCommand command)
+        public async Task<Job> DeleteUserJobFormInbox(DeleteJobFromInboxCommand command)
+        {
+            Job task = await _context.Jobs.Include(u => u.UserJobs).SingleAsync(r => r.JobId == command.JobId);
+            UserJob userJob = await _context.UserJobs.SingleAsync(r => r.JobId == task.JobId && r.UserId == command.UserId);
+            _context.UserJobs.Remove(userJob);
+            _context.SaveChanges();
+            return task;
+        }
+
+        public async Task<Job> UpdateJobFromInbox(UpdateJobFromInboxCommand command)
         {
             var currentTask = await _context.Jobs.SingleAsync(r => r.JobId == command.JobId);
 
-            currentTask.JobDescription = command.JobDescription;
-            currentTask.Type = command.Type;
-            currentTask.System = command.System;
-            currentTask.ProjectNumber = command.ProjectNumber;
-            currentTask.Link = command.Link;
-            currentTask.Engineer = command.Engineer;
-            currentTask.Ecm = command.Ecm;
-            currentTask.Gpdm = command.Gpdm;
             currentTask.Status = command.Status;
-            currentTask.Client = command.Client;
-            currentTask.SapText = command.SapText;
+            currentTask.Started = command.Started;
+            currentTask.Finished = command.Finished;
+            currentTask.WhenComplete = command.WhenComplete;
 
             _context.SaveChanges();
             return currentTask;
+        }
+
+        public Task<bool> CreateInboxItemForSomeone()
+        {
+            throw new NotImplementedException();
         }
     }
 }

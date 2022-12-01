@@ -2,7 +2,8 @@
 using Microsoft.Extensions.Caching.Distributed;
 using RaportMicroservice.Models;
 using RaportMicroservice.Queries;
-using RaportsMicroservice.Commands;
+using RaportsMicroservice.Commands.UserRaportCommands;
+using RaportsMicroservice.Commands.UserRaportRecordCommands;
 using RaportsMicroservice.Entities;
 using RaportsMicroservice.Extensions;
 using RaportsMicroservice.Queries;

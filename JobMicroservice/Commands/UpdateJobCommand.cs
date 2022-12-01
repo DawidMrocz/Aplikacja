@@ -17,12 +17,9 @@ namespace JobMicroservice.Commands
         public int Gpdm { get; set; }
         public string ProjectNumber { get; set; }
         public string Client { get; set; }
-        public string SapText { get; set; }
-        public string Status { get; set; }
-        public DateTime Received { get; set; }
-        public DateTime? DueDate { get; set; }
-        public DateTime? Started { get; set; }
-        public DateTime? Finished { get; set; }
+        public string ProjectName { get; set; }
+        public string Received { get; set; }
+        public string? DueDate { get; set; }
     }
     public class UpdateJobCommandHandler : IRequestHandler<UpdateJobCommand, Job>
     {

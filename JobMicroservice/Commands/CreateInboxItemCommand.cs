@@ -8,23 +8,21 @@ namespace JobMicroservice.Commands
     public record CreateInboxItemCommand : IRequest<bool>
     {
         public int UserId { get; set; }
-        public int JobId { get; set; }      
-
+        public int JobId { get; set; }
+        public string Name { get; set; }
     }
     public class CreateInboxItemCommandHandler : IRequestHandler<CreateInboxItemCommand, bool>
     {
-        private readonly IJobRepository _JobRepository;
-        private readonly IMapper _mapper;
+        private readonly IJobRepository _jobRepository;
 
-        public CreateInboxItemCommandHandler(IJobRepository JobRepository, IMapper mapper)
+        public CreateInboxItemCommandHandler(IJobRepository jobRepository)
         {
-            _JobRepository = JobRepository ?? throw new ArgumentNullException(nameof(JobRepository));
-            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+            _jobRepository = jobRepository ?? throw new ArgumentNullException(nameof(jobRepository));
         }
 
         public async Task<bool> Handle(CreateInboxItemCommand request, CancellationToken cancellationToken)
         {
-            return await _JobRepository.CreateInboxItem(request);
+            return await _jobRepository.CreateInboxItem(request);
         }
     }
 }

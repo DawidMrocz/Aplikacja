@@ -1,8 +1,16 @@
+using InboxMicroservice.Commands.CatsCommands;
+using InboxMicroservice.Commands.InboxItemCommands;
+using InboxMicroservice.Dtos;
 using InboxMicroservice.Entities;
-using InboxMicroservice.Repositories;
+using InboxMicroservice.GrpcSerivce;
+using InboxMicroservice.Queries;
+using MassTransit.Mediator;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
+using IMediator = MediatR.IMediator;
 
 namespace InboxMicroservice.Controllers
 {
@@ -10,35 +18,101 @@ namespace InboxMicroservice.Controllers
     [Route("[controller]")]
     public class InboxController : ControllerBase
     {
-        private readonly IInboxRepository _inboxRepository;
-        //private readonly MyOrderGrpcService _orderGrpcService;
+        private readonly ICatsGrpcService _catsGrpcService;
+        private readonly IMediator _mediator;
 
-        public InboxController(IInboxRepository InboxRepository)
+        public InboxController(ICatsGrpcService catsGrpcService, IMediator mediator)
         {
-            _inboxRepository = InboxRepository;
-            //_orderGrpcService = orderGrpcService;
+            _mediator = mediator;
+            _catsGrpcService = catsGrpcService;
         }
 
         [HttpGet]
         [Authorize]
         public async Task<ActionResult<Inbox>> GetMyInbox()
         {
-            var authenticatedId = int.Parse(User.FindFirst(c => c.Type == ClaimTypes.NameIdentifier).Value);
-            return Ok(await _inboxRepository.GetMyInbox(authenticatedId));
+            GetMyInboxQuery getMyInboxQuery = new GetMyInboxQuery()
+            {
+                UserId = int.Parse(User.FindFirst(c => c.Type == ClaimTypes.NameIdentifier).Value),
+            };
+            return Ok(await _mediator.Send(getMyInboxQuery));
         }
 
-        [HttpGet("/Inboxs")]
-        public async Task<ActionResult<List<Inbox>>> GetInboxs()
-        {
-            return Ok(await _inboxRepository.GetInboxs());
-        }
 
-        [HttpPost("/addOrder")]
+
+        [HttpPost("/data/{inboxItemId}")]
         [Authorize]
-        public async Task CreateOrder()
+        public async Task<ActionResult> CreateData([FromBody] CatDto sendDto, [FromRoute] int inboxItemId)
         {
-            var authenticatedId = int.Parse(User.FindFirst(c => c.Type == ClaimTypes.NameIdentifier).Value);
-            //await _orderGrpcService.CreateOrder(authenticatedId);
+            CreateDataCommand createDataCommand = new CreateDataCommand()
+            {
+                UserId = int.Parse(User.FindFirst(c => c.Type == ClaimTypes.NameIdentifier).Value),
+                Name = User.FindFirst(c => c.Type == ClaimTypes.Name).Value,
+                InboxItemId = inboxItemId,
+                Hours = sendDto.Hours,
+                EntryDate = sendDto.EntryDate,
+            };
+            return Ok(await _mediator.Send(createDataCommand));
         }
+
+        [HttpPut("/data/{inboxItemId}")]
+        [Authorize]
+        public async Task<ActionResult> UpdateData([FromBody] CatDto updateDto, [FromRoute] int inboxItemId)
+        {
+            UpdateDataCommand updateDataCommand = new UpdateDataCommand()
+            {
+                UserId = int.Parse(User.FindFirst(c => c.Type == ClaimTypes.NameIdentifier).Value),
+                Name = User.FindFirst(c => c.Type == ClaimTypes.Name).Value,
+                InboxItemId = inboxItemId,
+                Hours = updateDto.Hours,
+                EntryDate = updateDto.EntryDate,
+            };
+            return Ok(await _mediator.Send(updateDataCommand));
+        }
+
+        [HttpDelete("/data/{inboxItemId}")]
+        [Authorize]
+        public async Task<ActionResult> DeleteData([FromBody] string entryDate, [FromRoute] int inboxItemId)
+        {
+            DeleteDataCommand deleteDataCommand = new DeleteDataCommand()
+            {
+                InboxItemId = inboxItemId,
+                EntryData = entryDate,
+            };
+            return Ok(await _mediator.Send(deleteDataCommand));
+        }
+
+        [HttpDelete("/inboxitem/{inboxItemId}")]
+        [Authorize]
+        public async Task<ActionResult<bool>> DeleteInboxItemFromInbox([FromRoute] int inboxItemId)
+        {
+            DeleteInboxItemFromInboxCommand command = new DeleteInboxItemFromInboxCommand
+            {
+                UserId = int.Parse(User.FindFirst(c => c.Type == ClaimTypes.NameIdentifier).Value),
+                InboxItemId=inboxItemId,
+            };
+
+            return Ok(await _mediator.Send(command));
+        }
+
+        [HttpPut("/inboxitem/{inboxItemId}")]
+        [Authorize]
+        public async Task<ActionResult<bool>> UpdateInboxItemFromInbox([FromBody] UpdateJobDto updateJobDto ,[FromRoute] int inboxItemId)
+        {
+            UpdateInboxItemFromInboxCommand command = new UpdateInboxItemFromInboxCommand
+            {
+                UserId = int.Parse(User.FindFirst(c => c.Type == ClaimTypes.NameIdentifier).Value),
+                InboxItemId = inboxItemId,
+                Status = updateJobDto.Status,
+                Components = updateJobDto.Components,
+                DrawingsComponents = updateJobDto.DrawingsComponents,
+                DrawingsAssembly = updateJobDto.DrawingsAssembly,
+                WhenComplete=  updateJobDto.WhenComplete,
+                Started = updateJobDto.Started,
+                Finished=  updateJobDto.Finished,
+            };
+            return Ok(await _mediator.Send(command));
+        }
+
     }
 }

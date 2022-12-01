@@ -10,9 +10,10 @@ using System.Text;
 using UserMicroserivce;
 using UserMicroserivce.Commands;
 using UserMicroserivce.Queries;
-using UserMicroservice.Contracts;
+using UserMicroservice.Contracts.InboxContracts;
 using UserMicroservice.Dtos;
 using UserMicroservice.Entities;
+using UserMicroservice.GrpcService;
 using UserMicroservice.Models;
 
 namespace UserMicroservice.Repositories
@@ -25,8 +26,17 @@ namespace UserMicroservice.Repositories
             private readonly IDistributedCache _cache;
             private readonly AuthenticationSettings _authenticationSettings;
             private readonly IPublishEndpoint _publishEndpoint;
+            private readonly IUserGrpcService _userGrpcService;
 
-            public UserRepository(UserDbContext context, IMapper mapper, IPasswordHasher<User> passwordHasher, IDistributedCache cache, AuthenticationSettings authenticationSettings, IPublishEndpoint publishEndpoint)
+        public UserRepository(
+            UserDbContext context,
+            IMapper mapper,
+            IPasswordHasher<User> passwordHasher,
+            IDistributedCache cache,
+            AuthenticationSettings authenticationSettings,
+            IPublishEndpoint publishEndpoint,
+            IUserGrpcService userGrpcService
+            )
             {
                 _context = context ?? throw new ArgumentNullException(nameof(context));
                 _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
@@ -34,6 +44,7 @@ namespace UserMicroservice.Repositories
                 _cache = cache ?? throw new ArgumentNullException(nameof(cache));
                 _authenticationSettings = authenticationSettings ?? throw new ArgumentNullException(nameof(authenticationSettings));
                 _publishEndpoint = publishEndpoint ?? throw new ArgumentNullException(nameof(publishEndpoint));
+                _userGrpcService = userGrpcService ?? throw new ArgumentNullException(nameof(userGrpcService));
             }
 
             public async Task<UserDto> GetProfile(GetProfileQuery command)
@@ -60,7 +71,8 @@ namespace UserMicroservice.Repositories
                 newUser.PasswordHash = _passwordHasher.HashPassword(newUser, command.Password);
                 await _context.Users.AddAsync(newUser);
                 await _context.SaveChangesAsync();
-                await _publishEndpoint.Publish(new CreateUserInbox(newUser.UserId, newUser.Name,newUser.Photo));
+                await _publishEndpoint.Publish(new CreateUserInbox(newUser.UserId, newUser.Name,newUser.Photo,newUser.CCtr,newUser.ActTyp));
+                await _userGrpcService.CreateUserCats(newUser.UserId,newUser.Name, newUser.CCtr, newUser.ActTyp);
                 return newUser;
             }
 
@@ -75,8 +87,8 @@ namespace UserMicroservice.Repositories
                     new Claim(ClaimTypes.NameIdentifier,user.UserId.ToString()),
                     new Claim(ClaimTypes.Name,user.Name),
                     new Claim(ClaimTypes.Role,user.Role),
-                    new Claim("CCtrProvider", user.CCtr.ToString()),
-                    new Claim("ActTypProvider", user.ActTyp.ToString()),
+                    new Claim("CCtr", user.CCtr.ToString()),
+                    new Claim("ActTyp", user.ActTyp.ToString()),
             };
 
                 var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_authenticationSettings.JwtKey));
@@ -100,6 +112,7 @@ namespace UserMicroservice.Repositories
                 _context.Remove(myProfile);
                 await _context.SaveChangesAsync();
                 await _publishEndpoint.Publish(new DeleteUserInbox(myProfile.UserId));
+                await _userGrpcService.DeleteUserCats(myProfile.UserId);
             return true;
             }
 
@@ -115,7 +128,24 @@ namespace UserMicroservice.Repositories
 
             await _cache.DeleteRecordAsync<User>($"Profile_{command.UserId}");
                 _context.SaveChanges();
-                return currentUser;
+            await _userGrpcService.UpdateUserCats(currentUser.UserId, currentUser.Name, currentUser.CCtr, currentUser.ActTyp);
+            await _publishEndpoint.Publish(new UpdateUserInbox(currentUser.UserId, currentUser.Name, currentUser.Photo, currentUser.CCtr, currentUser.ActTyp));
+            return currentUser;
             }
+
+        public Task<string> ForgotPassword()
+        {
+            throw new NotImplementedException();
         }
+
+        public Task<string> ChangePassword()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ChangeRole()
+        {
+            throw new NotImplementedException();
+        }
+    }
     }

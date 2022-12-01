@@ -12,6 +12,7 @@
   <ItemGroup>
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.0" />
     <PackageReference Include="FluentValidation.AspNetCore" Version="11.2.2" />
+    <PackageReference Include="Grpc.AspNetCore" Version="2.40.0" />
     <PackageReference Include="MassTransit" Version="8.0.8" />
     <PackageReference Include="MassTransit.AspNetCore" Version="7.3.1" />
     <PackageReference Include="MassTransit.RabbitMQ" Version="8.0.8" />
@@ -27,6 +28,16 @@
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.17.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
     <PackageReference Include="Swashbuckle.AspNetCore.Filters" Version="7.0.6" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="GrpcService\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Protobuf Include="..\CatsGrpcMicroservice\Protos\Cats.proto" GrpcServices="Client">
+      <Link>Protos\Cats.proto</Link>
+    </Protobuf>
   </ItemGroup>
 
 </Project>

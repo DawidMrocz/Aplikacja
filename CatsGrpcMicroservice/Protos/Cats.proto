@@ -1,0 +1,97 @@
+syntax = "proto3";
+
+option csharp_namespace = "CatsGrpcMicroservice.Protos";
+
+service CatsProtoService {
+
+	rpc CreateCats (CreateEmployeeRequest) returns (CatsRecordResponse);
+    rpc UpdateCats (UpdateEmployeeRequest) returns (CatsRecordResponse);
+    rpc DeleteCats (DeleteEmployeeRequest) returns (CatsRecordResponse);
+
+    rpc CreateRaport (CreateRaportRequest) returns (RaportResponse);
+    rpc UpdateRaport (UpdateRaportRequest) returns (RaportResponse);
+    rpc DeleteRaport (DeleteRaportRequest) returns (RaportResponse);
+
+    rpc CreateUserCats (CreateCatsRequest) returns (CatsResponse);
+    rpc UpdateUserCats (UpdateCatsRequest) returns (CatsResponse);
+    rpc DeleteUserCats (DeleteCatsRequest) returns (CatsResponse);
+}
+
+message CreateCatsRequest {
+	    int32 Id = 1;
+        int32 UserId = 2;
+        string Name = 3;
+        string CCtr = 4;
+        string ActTyp = 5;
+}
+message UpdateCatsRequest {
+	    int32 Id = 1;
+        int32 UserId = 2;
+        string Name = 3;
+        string CCtr = 4;
+        string ActTyp = 5;
+}
+message DeleteCatsRequest {
+	    int32 Id = 1;
+        int32 UserId = 2;
+}
+
+message CreateRaportRequest {
+
+}
+message UpdateRaportRequest {
+
+}
+message DeleteRaportRequest {
+
+}
+
+message RaportResponse{
+
+}
+
+
+
+
+
+message CreateEmployeeRequest {
+        int32 UserId = 1;
+        string Name = 2;
+        CreateCatModel Cat = 3;
+}
+message CreateCatModel {
+        string CatCreated = 1;
+        CreateCatRecordModel CatRecord = 2;
+}
+message CreateCatRecordModel {
+        int32 CatRecordId =1;
+        int32 InboxItemId =2;
+        string Client=3;
+        string ProjectNumber=4;
+        string ProjectName=5;
+        CreateCatsRecordHoursModel CatsRecordHours = 6;
+}
+message CreateCatsRecordHoursModel {
+        string EntryDate = 1;
+        double Hours = 2;
+}
+message UpdateEmployeeRequest {
+	    int32 Id = 1;
+        int32 InboxItemId =2;
+        int32 UserId = 3;
+        string EntryDate = 4;
+        double Hours = 5;
+}
+message DeleteEmployeeRequest {
+	    int32 Id = 1;
+        int32 InboxItemId =2;
+        int32 UserId = 3;
+        string EntryDate = 4;
+}
+message CatsResponse {
+  bool Success = 1;
+}
+message CatsRecordResponse {
+  bool Success = 1;
+  double RecordHours =2;
+}

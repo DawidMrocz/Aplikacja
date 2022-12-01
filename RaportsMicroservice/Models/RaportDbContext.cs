@@ -16,7 +16,7 @@ namespace RaportMicroservice.Models
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             //modelBuilder.ApplyConfigurationsFromAssembly(typeof(RaportConfiguration).Assembly);
-            new RaportDbInitializer(modelBuilder).Seed();
+            //new RaportDbInitializer(modelBuilder).Seed();
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

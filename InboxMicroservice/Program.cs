@@ -1,7 +1,5 @@
-using InboxMicroservice;
-using InboxMicroservice.Consumers;
+using InboxMicroservice.GrpcSerivce;
 using InboxMicroservice.Models;
-//using InboxMicroservice.OrderGrpcService;
 using InboxMicroservice.Repositories;
 using InboxMicroservice.Settings;
 using MassTransit;
@@ -9,10 +7,13 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-//using OrderMicroservice.Grpc.Protos;
 using Swashbuckle.AspNetCore.Filters;
 using System.Reflection;
 using System.Text;
+using CatsGrpcMicroservice.Protos;
+using InboxMicroservice.Consumers.InboxItemConumers;
+using InboxMicroservice.Consumers.InboxConsumers;
+using InboxMicroservice.Consumers.InboxItemConsumers;
 
 var builder = WebApplication.CreateBuilder(args);
 var authenticationSettings = new AuthenticationSettings();
@@ -45,9 +46,9 @@ builder.Services.AddDbContext<InboxDbContext>(options =>
     options.EnableSensitiveDataLogging();
 });
 
-//builder.Services.AddGrpcClient<OrderProtoService.OrderProtoServiceClient>
-//                        (o => o.Address = new Uri("http://ordermicroservice:80"));
-//builder.Services.AddScoped<MyOrderGrpcService>();
+builder.Services.AddGrpcClient<CatsProtoService.CatsProtoServiceClient>
+                        (o => o.Address = new Uri("http://catsgrpcmicroservice:80"));
+builder.Services.AddScoped<ICatsGrpcService,CatsGrpcService>();
 
 var rabbitMqSettings = builder.Configuration.GetSection(nameof(RabbitMqSettings)).Get<RabbitMqSettings>();
 builder.Services.AddMassTransit(busConfigurator =>
@@ -65,13 +66,7 @@ builder.Services.AddMassTransit(busConfigurator =>
         busFactoryConfiguration.ConfigureEndpoints(context);
     });
 });
-//builder.Services.AddMediatR(Assembly.GetExecutingAssembly());
-//builder.Services.AddMediator(x =>
-//{
-//    x.AddConsumersFromNamespaceContaining<CreateUserInboxItemConsumer>();
-
-//    x.AddRequestClient<CreateUserInboxItem>();
-//});
+builder.Services.AddMediatR(Assembly.GetExecutingAssembly());
 builder.Services.AddControllersWithViews()
     .AddNewtonsoftJson(options =>
     options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore

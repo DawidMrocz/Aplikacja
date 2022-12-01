@@ -1,7 +1,7 @@
 ﻿
 using RaportMicroservice.Queries;
-using RaportsMicroservice.Commands;
-using RaportsMicroservice.Contracts;
+using RaportsMicroservice.Commands.UserRaportCommands;
+using RaportsMicroservice.Commands.UserRaportRecordCommands;
 using RaportsMicroservice.Entities;
 using RaportsMicroservice.Queries;
 

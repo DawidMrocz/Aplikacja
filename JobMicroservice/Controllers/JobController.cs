@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using JobMicroservice.Commands;
 using JobMicroservice.Entities;
-using JobMicroservice.Repositories;
 using JobMicroservice.Dtos;
 using MediatR;
 using JobMicroservice.Queries;
@@ -14,23 +13,21 @@ namespace JobMicroservice.Controllers
     [Route("[controller]")]
     public class ProductController : ControllerBase
     {
-        private readonly IJobRepository _jobRepository;
         private readonly IMediator _mediatr;
 
-        public ProductController(IJobRepository jobRepository, IMediator mediatr)
+        public ProductController(IMediator mediatr)
         {
-            _jobRepository = jobRepository;
             _mediatr = mediatr;
         }
 
-        [HttpGet]
+        [HttpGet("/Products")]
         [Authorize]
         public async Task<ActionResult> GetJobs()
         {
             return Ok(await _mediatr.Send(new GetJobsQuery()));
         }
 
-        [HttpGet("/{id}")]
+        [HttpGet("/Product/{jobId}")]
         [Authorize]
         public async Task<ActionResult<Job>> GetJob([FromRoute] int jobId)
         {
@@ -48,7 +45,7 @@ namespace JobMicroservice.Controllers
             return Ok(await _mediatr.Send(command));
         }
 
-        [HttpPut("/{id}")]
+        [HttpPut("/UpdateProduct/{jobId}")]
         [Authorize]
         public async Task<ActionResult<Job>> UpdateJob([FromRoute] int jobId, [FromBody] UpdateJobDto updateJob)
         {
@@ -63,18 +60,15 @@ namespace JobMicroservice.Controllers
                  Ecm = updateJob.Ecm,
                 Gpdm = updateJob.Gpdm,
                 ProjectNumber = updateJob.ProjectNumber,
+                ProjectName = updateJob.ProjectName,
                 Client = updateJob.Client,
-                SapText = updateJob.SapText,
-                Status = updateJob.Status,
                 Received = updateJob.Received,
-                DueDate = updateJob.DueDate,
-                Started = updateJob.Started,
-                Finished = updateJob.Finished    
+                DueDate = updateJob.DueDate,  
             };
             return Ok(await _mediatr.Send(updatedJobCommand));
         }
 
-        [HttpDelete("/{id}")]
+        [HttpDelete("/DeleteProduct/{jobId}")]
         [Authorize]
         public async Task<ActionResult<bool>> DeleteJob([FromRoute] int jobId)
         {
@@ -85,14 +79,15 @@ namespace JobMicroservice.Controllers
             return Ok(await _mediatr.Send(deleteJobCommand));
         }
 
-        [HttpPost("/{id}/basket")]
+        [HttpPost("/AddToInbox/{jobId}")]
         [Authorize]
-        public async Task<ActionResult> AddToBasket([FromRoute] int jobId)
+        public async Task<ActionResult> AddToInbox([FromRoute] int jobId)
         {
             CreateInboxItemCommand createInboxItem = new CreateInboxItemCommand()
             {
                 UserId = int.Parse(User.FindFirst(c => c.Type == ClaimTypes.NameIdentifier).Value),
                 JobId = jobId,
+                Name = User.FindFirst(c => c.Type == ClaimTypes.Name).Value
 
             };
             return Ok(await _mediatr.Send(createInboxItem));

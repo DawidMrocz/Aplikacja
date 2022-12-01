@@ -2,7 +2,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RaportMicroservice.Queries;
-using RaportsMicroservice.Commands;
+using RaportsMicroservice.Commands.UserRaportRecordCommands;
 using RaportsMicroservice.Dtos;
 using System.Security.Claims;
 

@@ -14,7 +14,7 @@ namespace UserMicroservice.Models
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(UserConfiguration).Assembly);
-            new UserDbInitializer(modelBuilder).Seed();
+            //new UserDbInitializer(modelBuilder).Seed();
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

@@ -1,35 +1,42 @@
-﻿using InboxMicroservice.Entities;
+﻿using CatsGrpcMicroservice.Protos;
+using InboxMicroservice.Commands.CatsCommands;
+using InboxMicroservice.Commands.InboxCommands;
+using InboxMicroservice.Commands.InboxItemCommands;
+using InboxMicroservice.Contracts.InboxItemContracts;
+using InboxMicroservice.Dtos;
+using InboxMicroservice.Entities;
+using InboxMicroservice.GrpcSerivce;
 using InboxMicroservice.Models;
-using JobMicroservice.Contracts;
+using InboxMicroservice.Queries;
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
-using UserMicroservice.Contracts;
 
 namespace InboxMicroservice.Repositories
 {
     public class InboxRepository : IInboxRepository
     {
         private readonly InboxDbContext _context;
+        private readonly IPublishEndpoint _publishEndpoint;
+        private readonly ICatsGrpcService _catsGrpcService;
 
-        public InboxRepository(InboxDbContext context)
+        public InboxRepository(InboxDbContext context, IPublishEndpoint publishEndpoint, ICatsGrpcService catsGrpcService)
         {
             _context = context;
+            _publishEndpoint = publishEndpoint;
+            _catsGrpcService = catsGrpcService;
         }
 
-        public async Task<List<Inbox>> GetInboxs()
+        public async Task<Inbox> GetMyInbox(GetMyInboxQuery query)
         {
-            return await _context.Inboxs.Include(i => i.InboxItems).AsNoTracking().ToListAsync();
+            return await _context.Inboxs.Include(i => i.InboxItems).AsNoTracking().SingleAsync(i => i.UserId == query.UserId);
         }
 
-        public async Task<Inbox> GetMyInbox(int id)
+        public async Task<InboxItem> CreateInboxItem(CreateInboxItemCommand command)
         {
-            return await _context.Inboxs.Include(i => i.InboxItems).AsNoTracking().SingleAsync(i => i.UserId == id);
-        }
-
-        public async Task CreateInboxItem(CreateInboxItem command)
-        {
-            var InboxUser = await _context.Inboxs.SingleAsync(u => u.UserId == command.UserId);
+            Inbox InboxUser = await _context.Inboxs.SingleAsync(u => u.UserId == command.UserId);
             InboxItem newInboxItem = new InboxItem()
             {
+                InboxId = InboxUser.InboxId,
                 JobId = command.JobId,
                 JobDescription = command.JobDescription,
                 Type = command.Type,
@@ -40,17 +47,20 @@ namespace InboxMicroservice.Repositories
                 Gpdm = command.Gpdm,
                 ProjectNumber = command.ProjectNumber,
                 Client = command.Client,
-                SapText = command.SapText,
-                Status = command.Status
+                ProjectName = command.ProjectName,
+                Status = command.Status,
+                DueDate = command.DueDate,
+                Received = command.Received
             };
             await _context.InboxItems.AddAsync(newInboxItem);
             await _context.SaveChangesAsync();
+            return newInboxItem;
         }
 
-        public async Task UpdateInboxItem(UpdateInboxItem command)
+        public async Task<List<InboxItem>> UpdateInboxItem(UpdateInboxItemCommand command)
         {
-            var InboxItem = await _context.InboxItems.Where(i => i.JobId == command.JobId).ToListAsync();
-            foreach(var item in InboxItem)
+            var inboxItem = await _context.InboxItems.Where(i => i.JobId == command.JobId).ToListAsync();
+            foreach (var item in inboxItem)
             {
                 item.JobDescription = command.JobDescription;
                 item.Type = command.Type;
@@ -61,44 +71,143 @@ namespace InboxMicroservice.Repositories
                 item.Gpdm = command.Gpdm;
                 item.ProjectNumber = command.ProjectNumber;
                 item.Client = command.Client;
-                item.SapText = command.SapText;
+                item.ProjectName = command.ProjectName;
                 item.Status = command.Status;
+                item.DueDate = command.DueDate;
+                item.Received = command.Received;
             }
             await _context.SaveChangesAsync();
+            return inboxItem;
         }
 
-        public async Task DeleteInboxItem(DeleteInboxItem command)
+        public async Task<bool> DeleteInboxItem(DeleteInboxItemCommand command)
         {
-            var productsToDelete = await _context.InboxItems.Where(p => p.Id == command.JobId).ToListAsync();
+            var productsToDelete = await _context.InboxItems.Where(p => p.InboxId == command.JobId).ToListAsync();
             _context.InboxItems.RemoveRange(productsToDelete);
             await _context.SaveChangesAsync();
+            return true;
         }
 
-        public async Task CreateUserInbox(CreateUserInbox command)
+        public async Task<Inbox> CreateUserInbox(CreateUserInboxCommand command)
         {
-            (int UserId, string Name, string Photo) = command;
             Inbox newInbox = new Inbox()
             {
-                UserId = UserId,
-                Name = Name,
-                Photo = Photo,
+                UserId = command.UserId,
+                Name = command.Name,
+                Photo = command.Photo,
+                ActTyp = command.ActTyp,
+                CCtr = command.CCtr,
                 InboxItems = new List<InboxItem>()
             };
             await _context.Inboxs.AddAsync(newInbox);
             await _context.SaveChangesAsync();
+            return newInbox;
         }
 
-        public Task UpdateUserInbox(UpdateUserInbox command)
+        public async Task<Inbox> UpdateUserInbox(UpdateUserInboxCommand command)
         {
-            throw new NotImplementedException();
+            Inbox myInbox = await _context.Inboxs.SingleAsync(i => i.UserId == command.UserId);
+            myInbox.Name = command.Name;
+            myInbox.Photo = command.Photo;
+            myInbox.ActTyp = command.ActTyp;
+            myInbox.CCtr = command.CCtr;
+            await _context.SaveChangesAsync();
+            return myInbox;
         }
 
-        public async Task DeleteUserInbox(DeleteUserInbox command)
+        public async Task<bool> DeleteUserInbox(DeleteUserInboxCommand command)
         {
-            var userInbox = await _context.Inboxs.Where(p => p.UserId == command.UserId).SingleAsync();
+            var userInbox = await _context.Inboxs.SingleAsync(p => p.UserId == command.UserId);
             _context.Inboxs.Remove(userInbox);
             await _context.SaveChangesAsync();
+            return true;
         }
 
+        public async Task<bool> DeleteInboxItemFromInbox(DeleteInboxItemFromInboxCommand command)
+        {
+            InboxItem inboxItem = await _context.InboxItems.SingleAsync(i => i.InboxItemId == command.InboxItemId);
+
+            DeleteInboxItemFromInbox deleteInboxItemFromInbox = new DeleteInboxItemFromInbox
+            (
+                inboxItem.JobId,
+                command.UserId
+            );
+            _context.InboxItems.Remove(inboxItem);
+            await _context.SaveChangesAsync();
+            await _publishEndpoint.Publish(deleteInboxItemFromInbox);
+            return true;
+        }
+
+        public async Task<InboxItem> UpdateInboxItemFromInbox(UpdateInboxItemFromInboxCommand command)
+        {
+            InboxItem inboxItem = await _context.InboxItems.SingleAsync(i => i.InboxItemId == command.InboxItemId);
+
+            inboxItem.Status = command.Status;
+            inboxItem.Components = command.Components;
+            inboxItem.DrawingsComponents = command.DrawingsComponents;
+            inboxItem.DrawingsAssembly = command.DrawingsAssembly;
+            inboxItem.WhenComplete = command.WhenComplete;
+            inboxItem.Started = command.Started;
+            inboxItem.Finished = command.Finished;
+
+            UpdateInboxItemFromInbox updateInboxItemFromInbox = new UpdateInboxItemFromInbox
+            (
+                inboxItem.JobId,
+                command.Status,
+                command.WhenComplete,
+                command.Started,
+                command.Finished
+            );
+
+            await _context.SaveChangesAsync();
+
+            await _publishEndpoint.Publish(updateInboxItemFromInbox);
+
+            return inboxItem;
+        }
+
+        public async Task<bool> CreateData(CreateDataCommand command)
+        {
+            InboxItem inboxItem = await _context.InboxItems.SingleAsync(i => i.InboxItemId == command.InboxItemId);
+            CreateCatsDto createCatsDto = new CreateCatsDto()
+            {
+                UserId = command.UserId,
+                Name = command.Name,
+                CatCreated = command.EntryDate,
+                InboxItemId = command.InboxItemId,
+                Client = inboxItem.Client,
+                ProjectNumber = inboxItem.ProjectNumber,
+                ProjectName = inboxItem.ProjectName,
+                EntryDate = command.EntryDate,
+                Hours = command.Hours   
+            };
+            CatsRecordResponse response = await _catsGrpcService.CreateCats(createCatsDto);
+            return true;
+        }
+
+        public async Task<bool> UpdateData(UpdateDataCommand command)
+        {
+            InboxItem inboxItem = await _context.InboxItems.SingleAsync(i => i.InboxItemId == command.InboxItemId);
+            UpdateCatsDto updateCatsDto = new UpdateCatsDto()
+            {
+                UserId = command.UserId,
+                InboxItemId = command.InboxItemId,
+                EntryDate = command.EntryDate,
+                Hours = command.Hours
+            };
+            CatsRecordResponse response = await _catsGrpcService.UpdateCats(updateCatsDto);
+            return true;
+        }
+
+        public async Task<bool> DeleteData(DeleteDataCommand command)
+        {
+            InboxItem inboxItem = await _context.InboxItems.SingleAsync(i => i.InboxItemId == command.InboxItemId);
+            DeleteCatsDto deleteCatsDto = new DeleteCatsDto()
+            {
+                InboxItemId = command.InboxItemId,
+            };
+            CatsRecordResponse response = await _catsGrpcService.DeleteCats(deleteCatsDto);
+            return true;
+        }
     }
 }
