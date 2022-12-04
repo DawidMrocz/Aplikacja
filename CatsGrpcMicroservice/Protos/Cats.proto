@@ -43,7 +43,11 @@ message UpdateRaportRequest {
 
 }
 message DeleteRaportRequest {
-
+	    int32 Id = 1;
+        int32 UserId = 2;
+        string Name = 3;
+        string CCtr = 4;
+        string ActTyp = 5;
 }
 
 message RaportResponse{

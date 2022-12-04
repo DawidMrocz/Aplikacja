@@ -14,7 +14,7 @@ namespace InboxMicroservice.Consumers.InboxItemConsumers
         }
         public async Task Consume(ConsumeContext<DeleteInboxItem> context)
         {
-            DeleteInboxItemCommand deleteInboxItemCommand = new DeleteInboxItemCommand()
+            DeleteInboxItemFromJobCommand deleteInboxItemCommand = new DeleteInboxItemFromJobCommand()
             {
                 JobId = context.Message.JobId,
             };

@@ -17,21 +17,23 @@ namespace InboxMicroservice.Repositories
         public Task<Inbox> UpdateUserInbox(UpdateUserInboxCommand command);
 
         //ADD TO USER INBOX
-        public Task<InboxItem> CreateInboxItem(CreateInboxItemCommand command);
+        public Task<InboxItem> CreateInboxItemFromJobs(CreateInboxItemFromJobCommand command);
 
         //CHANGES OF INBOX ITEM DUE TO CHANGE JOB
-        public Task<bool> DeleteInboxItem(DeleteInboxItemCommand command);
-        public Task<List<InboxItem>> UpdateInboxItem(UpdateInboxItemCommand command);
+        public Task<bool> DeleteInboxItemFromJobs(DeleteInboxItemFromJobCommand command);
+        public Task<List<InboxItem>> UpdateInboxItemFromJobs(UpdateInboxItemFromJobCommand command);
 
         //CHANGES OF JOB FROM INBOX
-        public Task<bool> DeleteInboxItemFromInbox(DeleteInboxItemFromInboxCommand command);
-        public Task<InboxItem> UpdateInboxItemFromInbox(UpdateInboxItemFromInboxCommand command);
+        public Task<bool> DeleteUserJobFromInbox(DeleteUserJobFromInboxCommand command);
+        public Task<InboxItem> UpdateJobFromInbox(UpdateJobFromInboxCommand command);
 
 
-        //CATS & REPORTS OPTIONS
-        public Task<bool> CreateData(CreateDataCommand command);
-        public Task<bool> UpdateData(UpdateDataCommand command);
-        public Task<bool> DeleteData(DeleteDataCommand command);
+        public Task<InboxItem> UpdateInboxItem(UpdateInboxItemCommand command);
+
+        //CATS
+        public Task<double> CreateData(CreateDataCommand command);
+        public Task<double> UpdateData(UpdateDataCommand command);
+        public Task<double> DeleteData(DeleteDataCommand command);
 
     }
 }

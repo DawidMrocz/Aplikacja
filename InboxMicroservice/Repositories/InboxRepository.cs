@@ -3,6 +3,7 @@ using InboxMicroservice.Commands.CatsCommands;
 using InboxMicroservice.Commands.InboxCommands;
 using InboxMicroservice.Commands.InboxItemCommands;
 using InboxMicroservice.Contracts.InboxItemContracts;
+using InboxMicroservice.Contracts.RaportContracts;
 using InboxMicroservice.Dtos;
 using InboxMicroservice.Entities;
 using InboxMicroservice.GrpcSerivce;
@@ -31,7 +32,12 @@ namespace InboxMicroservice.Repositories
             return await _context.Inboxs.Include(i => i.InboxItems).AsNoTracking().SingleAsync(i => i.UserId == query.UserId);
         }
 
-        public async Task<InboxItem> CreateInboxItem(CreateInboxItemCommand command)
+
+
+
+
+
+        public async Task<InboxItem> CreateInboxItemFromJobs(CreateInboxItemFromJobCommand command)
         {
             Inbox InboxUser = await _context.Inboxs.SingleAsync(u => u.UserId == command.UserId);
             InboxItem newInboxItem = new InboxItem()
@@ -57,7 +63,7 @@ namespace InboxMicroservice.Repositories
             return newInboxItem;
         }
 
-        public async Task<List<InboxItem>> UpdateInboxItem(UpdateInboxItemCommand command)
+        public async Task<List<InboxItem>> UpdateInboxItemFromJobs(UpdateInboxItemFromJobCommand command)
         {
             var inboxItem = await _context.InboxItems.Where(i => i.JobId == command.JobId).ToListAsync();
             foreach (var item in inboxItem)
@@ -80,13 +86,42 @@ namespace InboxMicroservice.Repositories
             return inboxItem;
         }
 
-        public async Task<bool> DeleteInboxItem(DeleteInboxItemCommand command)
+        public async Task<bool> DeleteInboxItemFromJobs(DeleteInboxItemFromJobCommand command)
         {
             var productsToDelete = await _context.InboxItems.Where(p => p.InboxId == command.JobId).ToListAsync();
             _context.InboxItems.RemoveRange(productsToDelete);
             await _context.SaveChangesAsync();
             return true;
         }
+
+
+
+        public async Task<List<InboxItem>> UpdateInboxItem(UpdateInboxItemFromJobCommand command)
+        {
+            var inboxItem = await _context.InboxItems.Where(i => i.JobId == command.JobId).ToListAsync();
+            foreach (var item in inboxItem)
+            {
+                item.JobDescription = command.JobDescription;
+                item.Type = command.Type;
+                item.System = command.System;
+                item.Link = command.Link;
+                item.Engineer = command.Engineer;
+                item.Ecm = command.Ecm;
+                item.Gpdm = command.Gpdm;
+                item.ProjectNumber = command.ProjectNumber;
+                item.Client = command.Client;
+                item.ProjectName = command.ProjectName;
+                item.Status = command.Status;
+                item.DueDate = command.DueDate;
+                item.Received = command.Received;
+            }
+            await _context.SaveChangesAsync();
+            return inboxItem;
+        }
+
+
+
+
 
         public async Task<Inbox> CreateUserInbox(CreateUserInboxCommand command)
         {
@@ -123,7 +158,16 @@ namespace InboxMicroservice.Repositories
             return true;
         }
 
-        public async Task<bool> DeleteInboxItemFromInbox(DeleteInboxItemFromInboxCommand command)
+
+
+
+
+
+
+
+
+
+        public async Task<bool> DeleteUserJobFromInbox(DeleteUserJobFromInboxCommand command)
         {
             InboxItem inboxItem = await _context.InboxItems.SingleAsync(i => i.InboxItemId == command.InboxItemId);
 
@@ -138,7 +182,7 @@ namespace InboxMicroservice.Repositories
             return true;
         }
 
-        public async Task<InboxItem> UpdateInboxItemFromInbox(UpdateInboxItemFromInboxCommand command)
+        public async Task<InboxItem> UpdateJobFromInbox(UpdateJobFromInboxCommand command)
         {
             InboxItem inboxItem = await _context.InboxItems.SingleAsync(i => i.InboxItemId == command.InboxItemId);
 
@@ -166,7 +210,9 @@ namespace InboxMicroservice.Repositories
             return inboxItem;
         }
 
-        public async Task<bool> CreateData(CreateDataCommand command)
+
+
+        public async Task<double> CreateData(CreateDataCommand command)
         {
             InboxItem inboxItem = await _context.InboxItems.SingleAsync(i => i.InboxItemId == command.InboxItemId);
             CreateCatsDto createCatsDto = new CreateCatsDto()
@@ -182,10 +228,32 @@ namespace InboxMicroservice.Repositories
                 Hours = command.Hours   
             };
             CatsRecordResponse response = await _catsGrpcService.CreateCats(createCatsDto);
-            return true;
+
+            CreateRaport createRaport = new CreateRaport
+            (
+                command.UserId,
+                command.Name,
+                command.JobId,
+                command.InboxItemId,
+                response.RecordHours,
+                inboxItem.System,
+                inboxItem.Ecm,
+                inboxItem.Gpdm,
+                inboxItem.ProjectNumber,
+                inboxItem.Client,
+                inboxItem.Status,
+                command.Components,
+                command.DrawingsComponents,
+                command.DrawingsAssembly,
+                inboxItem.DueDate,
+                command.Started,
+                command.Finished
+            );
+            await _publishEndpoint.Publish(createRaport);
+            return response.RecordHours;
         }
 
-        public async Task<bool> UpdateData(UpdateDataCommand command)
+        public async Task<double> UpdateData(UpdateDataCommand command)
         {
             InboxItem inboxItem = await _context.InboxItems.SingleAsync(i => i.InboxItemId == command.InboxItemId);
             UpdateCatsDto updateCatsDto = new UpdateCatsDto()
@@ -196,10 +264,31 @@ namespace InboxMicroservice.Repositories
                 Hours = command.Hours
             };
             CatsRecordResponse response = await _catsGrpcService.UpdateCats(updateCatsDto);
-            return true;
+            UpdateRaport updateRaport = new UpdateRaport
+            (
+                command.UserId,
+                command.Name,
+                command.JobId,
+                command.InboxItemId,
+                response.RecordHours,
+                inboxItem.System,
+                inboxItem.Ecm,
+                inboxItem.Gpdm,
+                inboxItem.ProjectNumber,
+                inboxItem.Client,
+                inboxItem.Status,
+                command.Components,
+                command.DrawingsComponents,
+                command.DrawingsAssembly,
+                inboxItem.DueDate,
+                command.Started,
+                command.Finished
+            );
+            await _publishEndpoint.Publish(updateRaport);
+            return response.RecordHours;
         }
 
-        public async Task<bool> DeleteData(DeleteDataCommand command)
+        public async Task<double> DeleteData(DeleteDataCommand command)
         {
             InboxItem inboxItem = await _context.InboxItems.SingleAsync(i => i.InboxItemId == command.InboxItemId);
             DeleteCatsDto deleteCatsDto = new DeleteCatsDto()
@@ -207,7 +296,12 @@ namespace InboxMicroservice.Repositories
                 InboxItemId = command.InboxItemId,
             };
             CatsRecordResponse response = await _catsGrpcService.DeleteCats(deleteCatsDto);
-            return true;
+            DeleteRaport deleteRaport = new DeleteRaport
+            (
+                command.InboxItemId
+            );
+            await _publishEndpoint.Publish(deleteRaport);
+            return response.RecordHours;
         }
     }
 }

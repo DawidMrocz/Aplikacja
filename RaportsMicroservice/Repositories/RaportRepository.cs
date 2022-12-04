@@ -2,8 +2,8 @@
 using Microsoft.Extensions.Caching.Distributed;
 using RaportMicroservice.Models;
 using RaportMicroservice.Queries;
-using RaportsMicroservice.Commands.UserRaportCommands;
-using RaportsMicroservice.Commands.UserRaportRecordCommands;
+using RaportsMicroservice.Commands.RaportCommands;
+using RaportsMicroservice.Commands.RaportDueToJobCommands;
 using RaportsMicroservice.Entities;
 using RaportsMicroservice.Extensions;
 using RaportsMicroservice.Queries;
@@ -20,15 +20,15 @@ namespace RaportsMicroservice.Repositories
             _cache = cache ?? throw new ArgumentNullException(nameof(cache));
         }
 
-        public async Task<UserRaport> AddUserRaportRecord(AddUserRaportRecordCommand command)
+        public async Task<UserRaport> CreateRaport(CreateRaportCommand command)
         {
-            Raport raport = await _context.Raports.SingleAsync<Raport>(r => r.Created == command.SendDate);
+            Raport raport = await _context.Raports.SingleAsync<Raport>(r => r.Created == DateTime.Now.ToString("yyyy MM"));
             if(raport is null)
             {
                 raport = new Raport()
                 {
                     TotalHours = 0,
-                    Created = command.SendDate,
+                    Created = DateTime.Now.ToString("yyyy MM"),
                 };
                 await _context.Raports.AddAsync(raport);
             }
@@ -82,9 +82,11 @@ namespace RaportsMicroservice.Repositories
             return myUserRaport; 
         }
 
-        public async Task<UserRaportRecord> UpdateUserRaportRecord(UpdateUserRaportRecordCommand command)
+        public async Task<UserRaportRecord> UpdateRaport(UpdateRaportCommand command)
         {
-            UserRaportRecord userRaportRecord = await _context.UserRaportRecords.SingleAsync(r => r.UserRaportRecordId == command.UserRecordId);
+            Raport raport = await _context.Raports.SingleAsync( r => r.Created == DateTime.Now.ToString("yyyy MM"));
+            UserRaport userRaport = await _context.UserRaports.SingleAsync(u => u.RaportId == raport.RaportId && u.UserId == command.UserId);
+            UserRaportRecord userRaportRecord = await _context.UserRaportRecords.SingleAsync(r => r.InboxItemId == command.InboxItemId && r.UserRaportId == userRaport.UserRaportId);
             userRaportRecord.System = command.System;
             userRaportRecord.Ecm = command.Ecm;
             userRaportRecord.Gpdm = command.Gpdm;
@@ -95,13 +97,10 @@ namespace RaportsMicroservice.Repositories
             userRaportRecord.Started = command.StartedDate;
             userRaportRecord.Finished = command.FinishedDate;
             userRaportRecord.DueDate = command.DueDate;
-            userRaportRecord.TaskHours = command.TaskHours;
-            
-            Raport raport = await _context.Raports.SingleAsync(r => r.RaportId == command.RaportId);
-            foreach(UserRaport user in raport.UserRaports)
-            {
-                if(user.UserRaportId == command.UserId) user.UserAllHours = user.UserRaportRecords.Sum(h => h.TaskHours);
-            }
+            userRaportRecord.TaskHours = command.Hours;
+
+            userRaport.UserAllHours = userRaport.UserRaportRecords.Sum(h => h.TaskHours);
+
             raport.TotalHours = raport.UserRaports.Sum(h => h.UserAllHours);
 
             await _context.SaveChangesAsync();
@@ -109,13 +108,21 @@ namespace RaportsMicroservice.Repositories
             return userRaportRecord;
         }
 
-        public async Task<bool> DeleteUserRaportRecord(DeleteUserRaportRecordCommand command)
+        public async Task<bool> DeleteRaport(DeleteRaportCommand command)
         {
-            UserRaportRecord recordToDelete = await _context.UserRaportRecords.SingleAsync(r => r.UserRaportRecordId == command.UserRaportRecordId);
+            Raport raport = await _context.Raports.SingleAsync(d => d.Created == DateTime.Now.ToString("yyyy MM"));
+            UserRaport userRaport = await _context.UserRaports.SingleAsync(r => r.RaportId == raport.RaportId && r.UserId == command.UserId);
+            UserRaportRecord recordToDelete = await _context.UserRaportRecords.SingleAsync(r => r.InboxItemId == command.InboxItemId && r.UserRaportId == userRaport.UserRaportId);
             if (recordToDelete == null) throw new BadHttpRequestException("Bad request");
             _context.UserRaportRecords.Remove(recordToDelete);
+            userRaport.UserAllHours = userRaport.UserRaportRecords.Sum(h => h.TaskHours);
+            raport.TotalHours = raport.UserRaports.Sum(h => h.UserAllHours);
+            await _context.SaveChangesAsync();
             return true;
         }
+
+
+
 
         public async Task<Raport> GetRaport(GetRaportQuery query)
         {
@@ -141,13 +148,31 @@ namespace RaportsMicroservice.Repositories
             return raports;
         }
 
-        public async Task<UserRaport> UpdateUserRaport(UpdateUserRaportCommand command)
+
+
+
+        public async Task<bool> UpdateRaportDueToJob(UpdateRaportDueToJobCommand command)
         {
-            UserRaport user = await _context.UserRaports.SingleAsync(u => u.UserId == command.UserId);
-            if (user is null) throw new BadHttpRequestException("Bad request");
-            user.Name = command.Name;
-            await _cache.DeleteRecordAsync<UserRaport>($"Raport_{user.RaportId}");
-            return user;
+            List<UserRaportRecord> records = await _context.UserRaportRecords.Where(i => i.JobId == command.JobId).ToListAsync();
+            foreach (UserRaportRecord record in records)
+            {
+                record.System=command.System;
+                record.Ecm = command.Ecm;
+                record.Gpdm = command.Gpdm;
+                record.ProjectNumber = command.ProjectNumber;
+                record.DueDate = command.DueDate;
+                record.Client = command.Client;
+            }
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<bool> DeleteRaportDueToJob(DeleteRaportDueToJobCommand command)
+        {
+            List<UserRaportRecord> records = await _context.UserRaportRecords.Where(i => i.JobId == command.JobId).ToListAsync();
+            _context.UserRaportRecords.RemoveRange(records);
+            await _context.SaveChangesAsync();
+            return true;
         }
     }
 }

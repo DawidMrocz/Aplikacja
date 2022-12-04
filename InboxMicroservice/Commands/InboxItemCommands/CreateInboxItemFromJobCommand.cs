@@ -4,7 +4,7 @@ using MediatR;
 
 namespace InboxMicroservice.Commands.InboxItemCommands
 {
-    public record CreateInboxItemCommand : IRequest<InboxItem>
+    public record CreateInboxItemFromJobCommand : IRequest<InboxItem>
     {
                 public int UserId { get; set; }
                 public int JobId { get; set; }
@@ -22,18 +22,18 @@ namespace InboxMicroservice.Commands.InboxItemCommands
                 public string Received { get; set; }
                 public string? DueDate { get; set; }
     }
-    public class CreateInboxItemCommandHandler : IRequestHandler<CreateInboxItemCommand, InboxItem>
+    public class CreateInboxItemFromJobCommandHandler : IRequestHandler<CreateInboxItemFromJobCommand, InboxItem>
     {
         private readonly IInboxRepository _inboxRepository;
 
-        public CreateInboxItemCommandHandler(IInboxRepository inboxRepository)
+        public CreateInboxItemFromJobCommandHandler(IInboxRepository inboxRepository)
         {
             _inboxRepository = inboxRepository ?? throw new ArgumentNullException(nameof(inboxRepository));
         }
 
-        public async Task<InboxItem> Handle(CreateInboxItemCommand request,CancellationToken cancellationToken)
+        public async Task<InboxItem> Handle(CreateInboxItemFromJobCommand request,CancellationToken cancellationToken)
         {
-            return await _inboxRepository.CreateInboxItem(request);
+            return await _inboxRepository.CreateInboxItemFromJobs(request);
         }
     }
 }

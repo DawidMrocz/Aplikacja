@@ -50,7 +50,8 @@ namespace JobMicroservice.Repositories
             {
                 UserId = command.UserId,
                 JobId = itemToAdd.JobId,
-                Name = command.Name
+                Name = command.Name,
+                Photo = command.Photo
             };
             await _context.UserJobs.AddAsync(userJob);
             await _context.SaveChangesAsync();
@@ -77,6 +78,7 @@ namespace JobMicroservice.Repositories
                 Ecm = command.Ecm,
                 Gpdm = command.Gpdm,
                 Received = command.Received,
+                DueDate = command.DueDate,
                 Status = command.Status,
                 Client = command.Client,
                 ProjectName = command.ProjectName,

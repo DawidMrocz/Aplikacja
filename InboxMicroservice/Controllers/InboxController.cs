@@ -4,12 +4,9 @@ using InboxMicroservice.Dtos;
 using InboxMicroservice.Entities;
 using InboxMicroservice.GrpcSerivce;
 using InboxMicroservice.Queries;
-using MassTransit.Mediator;
-using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 using IMediator = MediatR.IMediator;
 
 namespace InboxMicroservice.Controllers
@@ -42,7 +39,7 @@ namespace InboxMicroservice.Controllers
 
         [HttpPost("/data/{inboxItemId}")]
         [Authorize]
-        public async Task<ActionResult> CreateData([FromBody] CatDto sendDto, [FromRoute] int inboxItemId)
+        public async Task<ActionResult<int>> CreateData([FromBody] CatDto sendDto, [FromRoute] int inboxItemId)
         {
             CreateDataCommand createDataCommand = new CreateDataCommand()
             {
@@ -52,12 +49,14 @@ namespace InboxMicroservice.Controllers
                 Hours = sendDto.Hours,
                 EntryDate = sendDto.EntryDate,
             };
-            return Ok(await _mediator.Send(createDataCommand));
+            double updatedHours = await _mediator.Send(createDataCommand);
+
+            return Ok(updatedHours);
         }
 
         [HttpPut("/data/{inboxItemId}")]
         [Authorize]
-        public async Task<ActionResult> UpdateData([FromBody] CatDto updateDto, [FromRoute] int inboxItemId)
+        public async Task<ActionResult<double>> UpdateData([FromBody] CatDto updateDto, [FromRoute] int inboxItemId)
         {
             UpdateDataCommand updateDataCommand = new UpdateDataCommand()
             {

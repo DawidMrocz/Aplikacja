@@ -14,7 +14,7 @@ namespace InboxMicroservice.Consumers.InboxItemConumers
         }
         public async Task Consume(ConsumeContext<CreateInboxItem> context)
         {
-            CreateInboxItemCommand createInboxItemCommand = new CreateInboxItemCommand()
+            CreateInboxItemFromJobCommand createInboxItemCommand = new CreateInboxItemFromJobCommand()
             {
                 UserId = context.Message.UserId,
                 JobId = context.Message.JobId,

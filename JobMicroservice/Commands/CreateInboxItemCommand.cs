@@ -10,6 +10,7 @@ namespace JobMicroservice.Commands
         public int UserId { get; set; }
         public int JobId { get; set; }
         public string Name { get; set; }
+        public string Photo { get; set; }
     }
     public class CreateInboxItemCommandHandler : IRequestHandler<CreateInboxItemCommand, bool>
     {

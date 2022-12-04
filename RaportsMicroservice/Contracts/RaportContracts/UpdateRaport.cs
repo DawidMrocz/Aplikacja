@@ -1,11 +1,10 @@
 ﻿namespace InboxMicroservice.Contracts.RaportContracts
 {
-    public record UpdateRaport(
-        int UserId,
+    public record UpdateRaport(int UserId,
         string Name,
         int JobId,
         int InboxItemId,
-        double hours,
+        double hours ,
         string System,
         int Ecm,
         int Gpdm,

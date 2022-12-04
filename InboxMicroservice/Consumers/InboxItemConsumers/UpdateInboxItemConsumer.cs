@@ -14,7 +14,7 @@ namespace InboxMicroservice.Consumers.InboxItemConumers
         }
         public async Task Consume(ConsumeContext<UpdateInboxItem> context)
         {
-            UpdateInboxItemCommand updateInboxItemCommand = new UpdateInboxItemCommand()
+            UpdateInboxItemFromJobCommand updateInboxItemCommand = new UpdateInboxItemFromJobCommand()
             {
                 JobId = context.Message.JobId,
                 JobDescription = context.Message.JobDescription,
