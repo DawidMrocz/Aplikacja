@@ -1,4 +1,5 @@
 ﻿using InboxMicroservice.Commands.CatsCommands;
+using InboxMicroservice.Commands.FromJobsCommands;
 using InboxMicroservice.Commands.InboxCommands;
 using InboxMicroservice.Commands.InboxItemCommands;
 using InboxMicroservice.Entities;
@@ -18,21 +19,17 @@ namespace InboxMicroservice.Repositories
 
         //ADD TO USER INBOX
         public Task<InboxItem> CreateInboxItemFromJobs(CreateInboxItemFromJobCommand command);
-
-        //CHANGES OF INBOX ITEM DUE TO CHANGE JOB
         public Task<bool> DeleteInboxItemFromJobs(DeleteInboxItemFromJobCommand command);
         public Task<List<InboxItem>> UpdateInboxItemFromJobs(UpdateInboxItemFromJobCommand command);
 
+
         //CHANGES OF JOB FROM INBOX
-        public Task<bool> DeleteUserJobFromInbox(DeleteUserJobFromInboxCommand command);
-        public Task<InboxItem> UpdateJobFromInbox(UpdateJobFromInboxCommand command);
-
-
+        public Task<bool> DeleteInboxItem(DeleteInboxItemCommand command);
         public Task<InboxItem> UpdateInboxItem(UpdateInboxItemCommand command);
 
-        //CATS
-        public Task<double> CreateData(CreateDataCommand command);
-        public Task<double> UpdateData(UpdateDataCommand command);
+           
+        //Send data To Cats and Raports
+        public Task<double> SendData(CreateDataCommand command);
         public Task<double> DeleteData(DeleteDataCommand command);
 
     }

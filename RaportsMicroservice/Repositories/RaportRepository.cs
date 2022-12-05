@@ -1,9 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.VisualBasic;
 using RaportMicroservice.Models;
 using RaportMicroservice.Queries;
 using RaportsMicroservice.Commands.RaportCommands;
-using RaportsMicroservice.Commands.RaportDueToJobCommands;
 using RaportsMicroservice.Entities;
 using RaportsMicroservice.Extensions;
 using RaportsMicroservice.Queries;
@@ -34,7 +34,7 @@ namespace RaportsMicroservice.Repositories
             }
 
             UserRaport myUserRaport = await _context.UserRaports.SingleAsync(uR => uR.RaportId == raport.RaportId && uR.UserId == command.UserId);
-            if(myUserRaport is null)
+            if (myUserRaport is null)
             {
                 myUserRaport = new UserRaport()
                 {
@@ -43,10 +43,19 @@ namespace RaportsMicroservice.Repositories
                     UserAllHours = command.Hours
                 };
                 await _context.UserRaports.AddAsync(myUserRaport);
+            }
+
+            UserRaportRecord userRaportRecord = await _context.UserRaportRecords.SingleAsync(
+                    record => record.ProjectNumber == command.ProjectNumber &&
+                    record.Ecm == command.Ecm &&
+                    record.Gpdm == command.Gpdm);
+
+            if(userRaportRecord is null)
+            {
                 myUserRaport.UserRaportRecords = new List<UserRaportRecord>()
                 {
                     new UserRaportRecord()
-                    {  
+                    {
                         System = command.System,
                         Ecm = command.Ecm,
                         Gpdm = command.Gpdm,
@@ -64,48 +73,22 @@ namespace RaportsMicroservice.Repositories
             }
             else
             {
-                UserRaportRecord userRaportRecord = await _context.UserRaportRecords.SingleAsync(
-                    record => record.ProjectNumber == command.ProjectNumber && 
-                    record.Ecm == command.Ecm && 
-                    record.Gpdm == command.Gpdm);
-                if(userRaportRecord is null)
-                {
-                    myUserRaport.UserRaportRecords.Add(userRaportRecord);
-                }
-                else
-                {
-                    userRaportRecord.TaskHours = command.Hours;
-                }
-            }
+                userRaportRecord.System = command.System;
+                userRaportRecord.Ecm = command.Ecm;
+                userRaportRecord.Gpdm = command.Gpdm;
+                userRaportRecord.ProjectNumber = command.ProjectNumber;
+                userRaportRecord.Components = command.Components;
+                userRaportRecord.DrawingsOfComponents = command.DrawingOfComponent;
+                userRaportRecord.DrawingsOfAssemblies = command.DrawingOfAssemblies;
+                userRaportRecord.Started = command.StartedDate;
+                userRaportRecord.Finished = command.FinishedDate;
+                userRaportRecord.DueDate = command.DueDate;
+                userRaportRecord.TaskHours = command.Hours;
+                userRaportRecord.UserRaportId = myUserRaport.RaportId;
+            }        
             myUserRaport.UserAllHours = myUserRaport.UserRaportRecords.Sum(h => h.TaskHours);
             raport.TotalHours = raport.UserRaports.Sum(h => h.UserAllHours);
             return myUserRaport; 
-        }
-
-        public async Task<UserRaportRecord> UpdateRaport(UpdateRaportCommand command)
-        {
-            Raport raport = await _context.Raports.SingleAsync( r => r.Created == DateTime.Now.ToString("yyyy MM"));
-            UserRaport userRaport = await _context.UserRaports.SingleAsync(u => u.RaportId == raport.RaportId && u.UserId == command.UserId);
-            UserRaportRecord userRaportRecord = await _context.UserRaportRecords.SingleAsync(r => r.InboxItemId == command.InboxItemId && r.UserRaportId == userRaport.UserRaportId);
-            userRaportRecord.System = command.System;
-            userRaportRecord.Ecm = command.Ecm;
-            userRaportRecord.Gpdm = command.Gpdm;
-            userRaportRecord.ProjectNumber = command.ProjectNumber;
-            userRaportRecord.Components = command.DrawingOfComponent;
-            userRaportRecord.DrawingsOfComponents = command.DrawingOfComponent;
-            userRaportRecord.DrawingsOfAssemblies = command.DrawingOfAssemblies;
-            userRaportRecord.Started = command.StartedDate;
-            userRaportRecord.Finished = command.FinishedDate;
-            userRaportRecord.DueDate = command.DueDate;
-            userRaportRecord.TaskHours = command.Hours;
-
-            userRaport.UserAllHours = userRaport.UserRaportRecords.Sum(h => h.TaskHours);
-
-            raport.TotalHours = raport.UserRaports.Sum(h => h.UserAllHours);
-
-            await _context.SaveChangesAsync();
-
-            return userRaportRecord;
         }
 
         public async Task<bool> DeleteRaport(DeleteRaportCommand command)
@@ -120,6 +103,8 @@ namespace RaportsMicroservice.Repositories
             await _context.SaveChangesAsync();
             return true;
         }
+
+
 
 
 
@@ -146,33 +131,6 @@ namespace RaportsMicroservice.Repositories
                 await _cache.SetRecordAsync($"Raports", raports);
             }
             return raports;
-        }
-
-
-
-
-        public async Task<bool> UpdateRaportDueToJob(UpdateRaportDueToJobCommand command)
-        {
-            List<UserRaportRecord> records = await _context.UserRaportRecords.Where(i => i.JobId == command.JobId).ToListAsync();
-            foreach (UserRaportRecord record in records)
-            {
-                record.System=command.System;
-                record.Ecm = command.Ecm;
-                record.Gpdm = command.Gpdm;
-                record.ProjectNumber = command.ProjectNumber;
-                record.DueDate = command.DueDate;
-                record.Client = command.Client;
-            }
-            await _context.SaveChangesAsync();
-            return true;
-        }
-
-        public async Task<bool> DeleteRaportDueToJob(DeleteRaportDueToJobCommand command)
-        {
-            List<UserRaportRecord> records = await _context.UserRaportRecords.Where(i => i.JobId == command.JobId).ToListAsync();
-            _context.UserRaportRecords.RemoveRange(records);
-            await _context.SaveChangesAsync();
-            return true;
         }
     }
 }

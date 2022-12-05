@@ -4,12 +4,12 @@ using MediatR;
 
 namespace InboxMicroservice.Commands.InboxItemCommands
 {
-    public record DeleteUserJobFromInboxCommand : IRequest<bool>
+    public record DeleteInboxItemCommand : IRequest<bool>
     {
         public int UserId { get; set; }
         public int InboxItemId { get; set; }
     }
-    public class DeleteInboxItemFromInboxCommandHandler : IRequestHandler<DeleteUserJobFromInboxCommand, bool>
+    public class DeleteInboxItemFromInboxCommandHandler : IRequestHandler<DeleteInboxItemCommand, bool>
     {
         private readonly IInboxRepository _inboxRepository;
 
@@ -18,9 +18,9 @@ namespace InboxMicroservice.Commands.InboxItemCommands
             _inboxRepository = inboxRepository ?? throw new ArgumentNullException(nameof(inboxRepository));
         }
 
-        public async Task<bool> Handle(DeleteUserJobFromInboxCommand request, CancellationToken cancellationToken)
+        public async Task<bool> Handle(DeleteInboxItemCommand request, CancellationToken cancellationToken)
         {
-            return await _inboxRepository.DeleteUserJobFromInbox(request);
+            return await _inboxRepository.DeleteInboxItem(request);
         }
     }
 }

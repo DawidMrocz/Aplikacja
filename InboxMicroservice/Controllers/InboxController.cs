@@ -37,7 +37,7 @@ namespace InboxMicroservice.Controllers
 
 
 
-        [HttpPost("/data/{inboxItemId}")]
+        [HttpPost("/sendData/{inboxItemId}")]
         [Authorize]
         public async Task<ActionResult<int>> CreateData([FromBody] CatDto sendDto, [FromRoute] int inboxItemId)
         {
@@ -54,22 +54,26 @@ namespace InboxMicroservice.Controllers
             return Ok(updatedHours);
         }
 
-        [HttpPut("/data/{inboxItemId}")]
+        [HttpPut("/{inboxItemId}")]
         [Authorize]
-        public async Task<ActionResult<double>> UpdateData([FromBody] CatDto updateDto, [FromRoute] int inboxItemId)
+        public async Task<ActionResult<double>> UpdateData([FromBody] UpdateInboxItemDto updateInboxItemDto, [FromRoute] int inboxItemId)
         {
-            UpdateDataCommand updateDataCommand = new UpdateDataCommand()
+            UpdateInboxItemCommand updateInboxItem = new UpdateInboxItemCommand()
             {
-                UserId = int.Parse(User.FindFirst(c => c.Type == ClaimTypes.NameIdentifier).Value),
-                Name = User.FindFirst(c => c.Type == ClaimTypes.Name).Value,
-                InboxItemId = inboxItemId,
-                Hours = updateDto.Hours,
-                EntryDate = updateDto.EntryDate,
+                InboxItemId= inboxItemId,
+                Hours = updateInboxItemDto.Hours,
+                Status= updateInboxItemDto.Status,
+                Components= updateInboxItemDto.Components,
+                DrawingsComponents= updateInboxItemDto.DrawingsComponents,
+                DrawingsAssembly= updateInboxItemDto.DrawingsAssembly,
+                WhenComplete= updateInboxItemDto.WhenComplete,
+                Started= updateInboxItemDto.Started,
+                Finished= updateInboxItemDto.Finished
             };
-            return Ok(await _mediator.Send(updateDataCommand));
+            return Ok(await _mediator.Send(updateInboxItem));
         }
 
-        [HttpDelete("/data/{inboxItemId}")]
+        [HttpDelete("/deleteData/{inboxItemId}")]
         [Authorize]
         public async Task<ActionResult> DeleteData([FromBody] string entryDate, [FromRoute] int inboxItemId)
         {
@@ -83,9 +87,9 @@ namespace InboxMicroservice.Controllers
 
         [HttpDelete("/inboxitem/{inboxItemId}")]
         [Authorize]
-        public async Task<ActionResult<bool>> DeleteInboxItemFromInbox([FromRoute] int inboxItemId)
+        public async Task<ActionResult<bool>> DeleteUserJobFromInbox([FromRoute] int inboxItemId)
         {
-            DeleteInboxItemFromInboxCommand command = new DeleteInboxItemFromInboxCommand
+            DeleteInboxItemCommand command = new DeleteInboxItemCommand
             {
                 UserId = int.Parse(User.FindFirst(c => c.Type == ClaimTypes.NameIdentifier).Value),
                 InboxItemId=inboxItemId,
@@ -94,24 +98,24 @@ namespace InboxMicroservice.Controllers
             return Ok(await _mediator.Send(command));
         }
 
-        [HttpPut("/inboxitem/{inboxItemId}")]
-        [Authorize]
-        public async Task<ActionResult<bool>> UpdateInboxItemFromInbox([FromBody] UpdateJobDto updateJobDto ,[FromRoute] int inboxItemId)
-        {
-            UpdateInboxItemFromInboxCommand command = new UpdateInboxItemFromInboxCommand
-            {
-                UserId = int.Parse(User.FindFirst(c => c.Type == ClaimTypes.NameIdentifier).Value),
-                InboxItemId = inboxItemId,
-                Status = updateJobDto.Status,
-                Components = updateJobDto.Components,
-                DrawingsComponents = updateJobDto.DrawingsComponents,
-                DrawingsAssembly = updateJobDto.DrawingsAssembly,
-                WhenComplete=  updateJobDto.WhenComplete,
-                Started = updateJobDto.Started,
-                Finished=  updateJobDto.Finished,
-            };
-            return Ok(await _mediator.Send(command));
-        }
+       // [HttpPut("/inboxitem/{inboxItemId}")]
+       // [Authorize]
+       // public async Task<ActionResult<bool>> UpdateJobFromInbox([FromBody] UpdateJobDto updateJobDto ,[FromRoute] int inboxItemId)
+        //{
+          //  UpdateJobFromInboxCommand command = new UpdateJobFromInboxCommand
+          //  {
+          //      UserId = int.Parse(User.FindFirst(c => c.Type == ClaimTypes.NameIdentifier).Value),
+          //      InboxItemId = inboxItemId,
+          //      Status = updateJobDto.Status,
+          //      Components = updateJobDto.Components,
+         //       DrawingsComponents = updateJobDto.DrawingsComponents,
+         //       DrawingsAssembly = updateJobDto.DrawingsAssembly,
+         //       WhenComplete=  updateJobDto.WhenComplete,
+        //        Started = updateJobDto.Started,
+        //        Finished=  updateJobDto.Finished,
+        //    };
+        //    return Ok(await _mediator.Send(command));
+       // }
 
     }
 }

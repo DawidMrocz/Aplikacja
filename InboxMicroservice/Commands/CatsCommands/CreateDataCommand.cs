@@ -30,7 +30,7 @@ namespace InboxMicroservice.Commands.CatsCommands
 
         public async Task<double> Handle(CreateDataCommand request, CancellationToken cancellationToken)
         {
-            return await _inboxRepository.CreateData(request);
+            return await _inboxRepository.SendData(request);
         }
     }
 }

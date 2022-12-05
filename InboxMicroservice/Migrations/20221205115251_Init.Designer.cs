@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace InboxMicroservice.Migrations
 {
     [DbContext(typeof(InboxDbContext))]
-    [Migration("20221201132425_Init")]
+    [Migration("20221205115251_Init")]
     partial class Init
     {
         /// <inheritdoc />

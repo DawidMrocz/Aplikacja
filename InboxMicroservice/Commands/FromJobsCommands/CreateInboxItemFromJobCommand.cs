@@ -2,9 +2,9 @@
 using InboxMicroservice.Repositories;
 using MediatR;
 
-namespace InboxMicroservice.Commands.InboxItemCommands
+namespace InboxMicroservice.Commands.FromJobsCommands
 {
-    public record UpdateInboxItemFromJobCommand : IRequest<List<InboxItem>>
+    public record CreateInboxItemFromJobCommand : IRequest<InboxItem>
     {
         public int UserId { get; set; }
         public int JobId { get; set; }
@@ -22,18 +22,18 @@ namespace InboxMicroservice.Commands.InboxItemCommands
         public string Received { get; set; }
         public string? DueDate { get; set; }
     }
-    public class UpdateInboxItemFromJobCommandHandler : IRequestHandler<UpdateInboxItemFromJobCommand, List<InboxItem>>
+    public class CreateInboxItemFromJobCommandHandler : IRequestHandler<CreateInboxItemFromJobCommand, InboxItem>
     {
         private readonly IInboxRepository _inboxRepository;
 
-        public UpdateInboxItemFromJobCommandHandler(IInboxRepository inboxRepository)
+        public CreateInboxItemFromJobCommandHandler(IInboxRepository inboxRepository)
         {
             _inboxRepository = inboxRepository ?? throw new ArgumentNullException(nameof(inboxRepository));
         }
 
-        public async Task<List<InboxItem>> Handle(UpdateInboxItemFromJobCommand request, CancellationToken cancellationToken)
+        public async Task<InboxItem> Handle(CreateInboxItemFromJobCommand request, CancellationToken cancellationToken)
         {
-            return await _inboxRepository.UpdateInboxItemFromJobs(request);
+            return await _inboxRepository.CreateInboxItemFromJobs(request);
         }
     }
 }

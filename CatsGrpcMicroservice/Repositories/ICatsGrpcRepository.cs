@@ -7,7 +7,6 @@ namespace CatsGrpcMicroservice.Repositories
     public interface ICatsGrpcRepository
     {
         public Task<double> CreateCats(CreateCatsCommand command);
-        public Task<double> UpdateCats(UpdateCatsCommand command);
         public Task<double> DeleteCats(DeleteCatsCommand command);
 
 

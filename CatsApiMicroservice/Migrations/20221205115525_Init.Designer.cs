@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CatsApiMicroservice.Migrations
 {
     [DbContext(typeof(UserCatsDbContext))]
-    [Migration("20221201132542_Init")]
+    [Migration("20221205115525_Init")]
     partial class Init
     {
         /// <inheritdoc />

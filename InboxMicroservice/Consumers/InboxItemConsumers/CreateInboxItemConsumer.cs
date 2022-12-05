@@ -1,4 +1,4 @@
-﻿using InboxMicroservice.Commands.InboxItemCommands;
+﻿using InboxMicroservice.Commands.FromJobsCommands;
 using JobMicroservice.Contracts.InboxItemContracts;
 using MassTransit;
 using MediatR;

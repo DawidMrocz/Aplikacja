@@ -1,7 +1,7 @@
 ﻿using InboxMicroservice.Repositories;
 using MediatR;
 
-namespace InboxMicroservice.Commands.InboxItemCommands
+namespace InboxMicroservice.Commands.FromJobsCommands
 {
     public record DeleteInboxItemFromJobCommand : IRequest<bool>
     {

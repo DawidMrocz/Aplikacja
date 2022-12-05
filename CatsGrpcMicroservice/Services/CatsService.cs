@@ -31,18 +31,6 @@ namespace CatsGrpcMicroservice.Services
             return new CatsRecordResponse() { Success = true,RecordHours = hours };
         }
 
-        public override async Task<CatsRecordResponse> UpdateCats(UpdateEmployeeRequest request, ServerCallContext context)
-        {
-            UpdateCatsCommand updateCatsCommand = new UpdateCatsCommand()
-            {
-                UserId = request.UserId,
-                InboxItemId = request.InboxItemId,
-                EntryDate = request.EntryDate,
-                Hours = request.Hours,
-            };
-            double hours = await _mediator.Send(updateCatsCommand);
-            return new CatsRecordResponse() { Success = true, RecordHours = hours };
-        }
 
         public override async Task<CatsRecordResponse> DeleteCats(DeleteEmployeeRequest request, ServerCallContext context)
         {
@@ -55,6 +43,10 @@ namespace CatsGrpcMicroservice.Services
             double hours = await _mediator.Send(deleteCatsCommand);
             return new CatsRecordResponse() { Success = true, RecordHours = hours };
         }
+
+
+
+
 
         public override async Task<CatsResponse> CreateUserCats(CreateCatsRequest request, ServerCallContext context)
         {

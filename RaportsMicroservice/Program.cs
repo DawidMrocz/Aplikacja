@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using RaportMicroservice.Models;
+using RaportsMicroservice.Consumers.RaportConsumers;
 using RaportsMicroservice.Repositories;
 using RaportsMicroservice.Settings;
 using Swashbuckle.AspNetCore.Filters;
@@ -46,6 +47,8 @@ var rabbitMqSettings = builder.Configuration.GetSection(nameof(RabbitMqSettings)
 builder.Services.AddMassTransit(busConfigurator =>
 {
     busConfigurator.SetKebabCaseEndpointNameFormatter();
+    busConfigurator.AddConsumer<CreateRaportConsumer>();
+    busConfigurator.AddConsumer<DeleteRaportConsumer>();
     busConfigurator.UsingRabbitMq((context, busFactoryConfigurator) =>
     {
         busFactoryConfigurator.Host(rabbitMqSettings.Uri, hostConfgurator => { });

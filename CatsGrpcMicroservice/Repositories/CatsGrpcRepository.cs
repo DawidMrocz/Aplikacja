@@ -67,21 +67,6 @@ namespace CatsGrpcMicroservice.Repositories
             return catRecord.CatRecordHours.Sum(h => h.Hours);
         }
 
-        public async Task<double> UpdateCats(UpdateCatsCommand command)
-        {
-            CatRecord catRecord = await _context.CatRecords.SingleAsync(r => r.InboxItemId == command.InboxItemId);
-
-            if (catRecord is null) throw new BadHttpRequestException("Cat not found");
-
-            CatRecordHours catRecordHour = await _context.CatRecordHourss
-                .SingleAsync(h => h.CatRecordId == catRecord.CatRecordId && 
-                h.Date == command.EntryDate);
-
-            catRecordHour.Hours = command.Hours; 
-            await _context.SaveChangesAsync();
-            return catRecord.CatRecordHours.Sum(h => h.Hours);
-        }
-
         public async Task<double> DeleteCats(DeleteCatsCommand command)
         {
             CatRecord catRecord = await _context.CatRecords.SingleAsync(r => r.InboxItemId == command.InboxItemId);
@@ -94,6 +79,9 @@ namespace CatsGrpcMicroservice.Repositories
             _context.CatRecordHourss.Remove(catRecordHour);
             return catRecord.CatRecordHours.Sum(h => h.Hours);
         }
+
+
+
 
 
         public async Task<Employee> CreateEmployee(CreateEmployeeCommand command)
