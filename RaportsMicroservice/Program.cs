@@ -49,9 +49,10 @@ builder.Services.AddMassTransit(busConfigurator =>
     busConfigurator.SetKebabCaseEndpointNameFormatter();
     busConfigurator.AddConsumer<CreateRaportConsumer>();
     busConfigurator.AddConsumer<DeleteRaportConsumer>();
-    busConfigurator.UsingRabbitMq((context, busFactoryConfigurator) =>
+    busConfigurator.UsingRabbitMq((context, busFactoryConfiguration) =>
     {
-        busFactoryConfigurator.Host(rabbitMqSettings.Uri, hostConfgurator => { });
+        busFactoryConfiguration.Host(rabbitMqSettings.Uri);
+        busFactoryConfiguration.ConfigureEndpoints(context);
     });
 });
 

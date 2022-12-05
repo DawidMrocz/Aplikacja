@@ -5,7 +5,6 @@ option csharp_namespace = "CatsGrpcMicroservice.Protos";
 service CatsProtoService {
 
 	rpc CreateCats (CreateEmployeeRequest) returns (CatsRecordResponse);
-    rpc UpdateCats (UpdateEmployeeRequest) returns (CatsRecordResponse);
     rpc DeleteCats (DeleteEmployeeRequest) returns (CatsRecordResponse);
 
     rpc CreateRaport (CreateRaportRequest) returns (RaportResponse);
@@ -68,24 +67,17 @@ message CreateCatModel {
         CreateCatRecordModel CatRecord = 2;
 }
 message CreateCatRecordModel {
-        int32 CatRecordId =1;
-        int32 InboxItemId =2;
-        string Client=3;
-        string ProjectNumber=4;
-        string ProjectName=5;
-        CreateCatsRecordHoursModel CatsRecordHours = 6;
+        int32 InboxItemId =1;
+        string Client=2;
+        string ProjectNumber=3;
+        string ProjectName=4;
+        CreateCatsRecordHoursModel CatsRecordHours = 5;
 }
 message CreateCatsRecordHoursModel {
         string EntryDate = 1;
         double Hours = 2;
 }
-message UpdateEmployeeRequest {
-	    int32 Id = 1;
-        int32 InboxItemId =2;
-        int32 UserId = 3;
-        string EntryDate = 4;
-        double Hours = 5;
-}
+
 message DeleteEmployeeRequest {
 	    int32 Id = 1;
         int32 InboxItemId =2;

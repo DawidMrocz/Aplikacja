@@ -111,7 +111,7 @@ namespace InboxMicroservice.Repositories
             inboxItem.Started = command.Started;
             inboxItem.Finished = command.Finished;
 
-            UpdateInboxItemFromInbox updateInboxItemFromInbox = new UpdateInboxItemFromInbox
+            UpdateJobFromInbox updateInboxItemFromInbox = new UpdateJobFromInbox
             (
                 inboxItem.JobId,
                 command.Status,
@@ -129,7 +129,7 @@ namespace InboxMicroservice.Repositories
         {
             InboxItem inboxItem = await _context.InboxItems.SingleAsync(i => i.InboxItemId == command.InboxItemId);
 
-            DeleteInboxItemFromInbox deleteInboxItemFromInbox = new DeleteInboxItemFromInbox
+            DeleteUserJobFromInbox deleteUserJobFromInbox = new DeleteUserJobFromInbox
             (
                 inboxItem.JobId,
                 command.UserId
@@ -138,10 +138,11 @@ namespace InboxMicroservice.Repositories
             (
                 inboxItem.InboxItemId
             );
+            
+            await _publishEndpoint.Publish(deleteUserJobFromInbox);
+            await _publishEndpoint.Publish(deleteRaport);
             _context.InboxItems.Remove(inboxItem);
             await _context.SaveChangesAsync();
-            await _publishEndpoint.Publish(deleteInboxItemFromInbox);
-            await _publishEndpoint.Publish(deleteRaport);
             return true;
         }
 
@@ -207,7 +208,7 @@ namespace InboxMicroservice.Repositories
             (
                 command.UserId,
                 command.Name,
-                command.JobId,
+                inboxItem.JobId,
                 command.InboxItemId,
                 response.RecordHours,
                 inboxItem.System,

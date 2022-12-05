@@ -149,13 +149,13 @@ namespace CatsApiMicroservice.Migrations
 
             modelBuilder.Entity("CatsApiMicroservice.Entities.CatRecordHours", b =>
                 {
-                    b.HasOne("CatsApiMicroservice.Entities.CatRecord", "CatsRecord")
+                    b.HasOne("CatsApiMicroservice.Entities.CatRecord", "CatRecord")
                         .WithMany("CatRecordHours")
                         .HasForeignKey("CatRecordId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("CatsRecord");
+                    b.Navigation("CatRecord");
                 });
 
             modelBuilder.Entity("CatsApiMicroservice.Entities.Cat", b =>

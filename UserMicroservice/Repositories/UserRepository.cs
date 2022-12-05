@@ -89,6 +89,7 @@ namespace UserMicroservice.Repositories
                     new Claim(ClaimTypes.Role,user.Role),
                     new Claim("CCtr", user.CCtr.ToString()),
                     new Claim("ActTyp", user.ActTyp.ToString()),
+                    new Claim("Photo", user.Photo.ToString())
             };
 
                 var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_authenticationSettings.JwtKey));

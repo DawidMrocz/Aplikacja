@@ -46,18 +46,6 @@ namespace InboxMicroservice.GrpcSerivce
             return await _catsProtoService.CreateCatsAsync(catsRequest);
         }
 
-        public async Task<CatsRecordResponse> UpdateCats(UpdateCatsDto updateCatsDto)
-        {
-            UpdateEmployeeRequest catsRequest = new UpdateEmployeeRequest()
-            {
-                InboxItemId = updateCatsDto.InboxItemId,
-                UserId = updateCatsDto.UserId,
-                EntryDate = updateCatsDto.EntryDate,
-                Hours = updateCatsDto.Hours
-            };
-            return await _catsProtoService.UpdateCatsAsync(catsRequest);
-        }
-
         public async Task<CatsRecordResponse> DeleteCats(DeleteCatsDto deleteCatsDto)
         {
             DeleteEmployeeRequest catsRequest = new DeleteEmployeeRequest()

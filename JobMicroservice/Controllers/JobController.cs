@@ -87,8 +87,8 @@ namespace JobMicroservice.Controllers
             {
                 UserId = int.Parse(User.FindFirst(c => c.Type == ClaimTypes.NameIdentifier).Value),
                 JobId = jobId,
-                Name = User.FindFirst(c => c.Type == ClaimTypes.Name).Value
-
+                Name = User.FindFirst(c => c.Type == ClaimTypes.Name).Value,
+                Photo = User.FindFirst(c => c.Type == "Photo").Value
             };
             return Ok(await _mediatr.Send(createInboxItem));
         }

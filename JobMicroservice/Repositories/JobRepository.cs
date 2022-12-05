@@ -118,13 +118,12 @@ namespace JobMicroservice.Repositories
             return currentTask;
         }
 
-        public async Task<Job> DeleteUserJobFormInbox(DeleteJobFromInboxCommand command)
+        public async Task<UserJob> DeleteUserJobFormInbox(DeleteUserJobFromInboxCommand command)
         {
-            Job task = await _context.Jobs.Include(u => u.UserJobs).SingleAsync(r => r.JobId == command.JobId);
-            UserJob userJob = await _context.UserJobs.SingleAsync(r => r.JobId == task.JobId && r.UserId == command.UserId);
+            UserJob userJob = await _context.UserJobs.SingleAsync(r => r.JobId == command.JobId && r.UserId == command.UserId);
             _context.UserJobs.Remove(userJob);
             _context.SaveChanges();
-            return task;
+            return userJob;
         }
 
         public async Task<Job> UpdateJobFromInbox(UpdateJobFromInboxCommand command)

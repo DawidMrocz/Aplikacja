@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CatsApiMicroservice.Migrations
 {
     [DbContext(typeof(UserCatsDbContext))]
-    [Migration("20221205115525_Init")]
+    [Migration("20221205174855_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -152,13 +152,13 @@ namespace CatsApiMicroservice.Migrations
 
             modelBuilder.Entity("CatsApiMicroservice.Entities.CatRecordHours", b =>
                 {
-                    b.HasOne("CatsApiMicroservice.Entities.CatRecord", "CatsRecord")
+                    b.HasOne("CatsApiMicroservice.Entities.CatRecord", "CatRecord")
                         .WithMany("CatRecordHours")
                         .HasForeignKey("CatRecordId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("CatsRecord");
+                    b.Navigation("CatRecord");
                 });
 
             modelBuilder.Entity("CatsApiMicroservice.Entities.Cat", b =>

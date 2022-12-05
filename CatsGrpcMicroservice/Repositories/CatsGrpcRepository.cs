@@ -19,38 +19,55 @@ namespace CatsGrpcMicroservice.Repositories
         public async Task<double> CreateCats(CreateCatsCommand command)
         {
             Employee employee = await _context.Employees.SingleAsync<Employee>(r => r.UserId == command.UserId);
-
-            Cat userCat = await _context.Cats.SingleAsync(c => c.EmployeeId == employee.EmployeeId && c.CatCreated == command.EntryDate);
-
-            if (userCat is null)
+            Cat? userCat;
+            bool catExist = await _context.Cats.AnyAsync(c => c.EmployeeId == employee.EmployeeId && c.CatCreated == command.EntryDate);
+            if (catExist)
+            {
+                userCat = await _context.Cats.SingleAsync(c => c.EmployeeId == employee.EmployeeId && c.CatCreated == command.EntryDate);    
+            }
+            else
             {
                 userCat = new Cat()
                 {
-                    CatCreated= command.EntryDate,
+                    CatCreated = command.EntryDate,
                     EmployeeId = employee.EmployeeId,
                 };
-                await _context.Cats.AddAsync(userCat);       
+                await _context.Cats.AddAsync(userCat);
+                await _context.SaveChangesAsync();
             }
 
-            CatRecord catRecord = await _context.CatRecords.SingleAsync(r => r.InboxItemId == command.InboxItemId);
-
-            if (catRecord is null)
+            CatRecord? catRecord;
+            bool recordExist = await _context.CatRecords.AnyAsync(r => r.InboxItemId == command.InboxItemId);
+            if (recordExist)
+            {
+                catRecord = await _context.CatRecords.SingleAsync(r => r.InboxItemId == command.InboxItemId);
+            }
+            else 
             {
                 catRecord = new CatRecord()
                 {
-                    CatId= userCat.CatId,
+                    CatId = userCat.CatId,
+                    InboxItemId = command.InboxItemId,
                     Receiver = "RECEIVER DEPEND",
                     SapText = $"NA_{command.ProjectNumber}_{command.Client}_{command.ProjectName}",
                 };
+                await _context.CatRecords.AddAsync(catRecord);
+                await _context.SaveChangesAsync();
+
             }
 
-            CatRecordHours catRecordHour = await _context
+            CatRecordHours? catRecordHour;
+            bool hoursExits = await _context
                 .CatRecordHourss
-                .SingleAsync(c => c.CatRecordId == catRecord.CatRecordId 
+                .AnyAsync(c => c.CatRecordId == catRecord.CatRecordId
                 && c.Date == command.EntryDate);
 
-            if (catRecordHour is not null) 
+            if (hoursExits) 
             {
+                catRecordHour = await _context
+                .CatRecordHourss
+                .SingleAsync(c => c.CatRecordId == catRecord.CatRecordId
+                && c.Date == command.EntryDate);
                 catRecordHour.Hours = command.Hours;
             }
             else

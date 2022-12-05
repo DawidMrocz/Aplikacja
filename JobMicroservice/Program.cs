@@ -48,10 +48,11 @@ builder.Services.AddMassTransit(busConfigurator =>
     busConfigurator.SetKebabCaseEndpointNameFormatter();
     busConfigurator.AddConsumer<UpdateJobFromInboxConsumer>();
     busConfigurator.AddConsumer<DeleteUserJobFromInboxConsumer>();
-    busConfigurator.UsingRabbitMq((context, busFactoryConfigurator) =>
- {
-     busFactoryConfigurator.Host(rabbitMqSettings.Uri, hostConfgurator => { });
- });
+    busConfigurator.UsingRabbitMq((context, busFactoryConfiguration) =>
+    {
+        busFactoryConfiguration.Host(rabbitMqSettings.Uri);
+        busFactoryConfiguration.ConfigureEndpoints(context);
+    });
 });
 
 builder.Services.AddControllersWithViews()

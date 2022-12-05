@@ -1,6 +1,6 @@
 ﻿namespace InboxMicroservice.Contracts.InboxItemContracts
 {
-    public record DeleteInboxItemFromInbox(
+    public record DeleteUserJobFromInbox(
         int JobId,
         int UserId
     );

@@ -1,7 +1,7 @@
 ﻿
 namespace InboxMicroservice.Contracts.InboxItemContracts
 {
-    public record UpdateInboxItemFromInbox(
+    public record UpdateJobFromInbox(
         int JobId,
         string Status, 
         string WhenComplete,

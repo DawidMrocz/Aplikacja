@@ -5,14 +5,14 @@ using MediatR;
 
 namespace JobMicroservice.Consumers
 {
-    public class UpdateJobFromInboxConsumer : IConsumer<UpdateInboxItemFromInbox>
+    public class UpdateJobFromInboxConsumer : IConsumer<UpdateJobFromInbox>
     {
         private readonly IMediator _mediator;
         public UpdateJobFromInboxConsumer(IMediator mediator)
         {
             _mediator = mediator;
         }
-        public async Task Consume(ConsumeContext<UpdateInboxItemFromInbox> context)
+        public async Task Consume(ConsumeContext<UpdateJobFromInbox> context)
         {
             UpdateJobFromInboxCommand updateJobFromInboxCommand = new UpdateJobFromInboxCommand()
             {

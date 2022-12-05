@@ -3,21 +3,21 @@ using MediatR;
 
 namespace JobMicroservice.Commands
 {
-    public record DeleteJobFromInboxCommand : IRequest<bool>
+    public record DeleteUserJobFromInboxCommand : IRequest<bool>
     {
         public int JobId { get; set; }
         public int UserId { get; set; }
     }
-    public class DeleteJobFromInboxCommandHandler : IRequestHandler<DeleteJobFromInboxCommand, bool>
+    public class DeleteUserJobFromInboxCommandHandler : IRequestHandler<DeleteUserJobFromInboxCommand, bool>
     {
         private readonly IJobRepository _jobRepository;
 
-        public DeleteJobFromInboxCommandHandler(IJobRepository jobRepository)
+        public DeleteUserJobFromInboxCommandHandler(IJobRepository jobRepository)
         {
             _jobRepository = jobRepository ?? throw new ArgumentNullException(nameof(jobRepository));
         }
 
-        public async Task<bool> Handle(DeleteJobFromInboxCommand request, CancellationToken cancellationToken)
+        public async Task<bool> Handle(DeleteUserJobFromInboxCommand request, CancellationToken cancellationToken)
         {
             await _jobRepository.DeleteUserJobFormInbox(request);
             return true;

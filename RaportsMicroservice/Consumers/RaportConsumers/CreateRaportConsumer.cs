@@ -14,11 +14,13 @@ namespace RaportsMicroservice.Consumers.RaportConsumers
         }
         public async Task Consume(ConsumeContext<CreateRaport> context)
         {
+            Console.WriteLine($"MESSAGE IS : {context.Message.JobId}");
             CreateRaportCommand createRaportCommand = new CreateRaportCommand()
             {
                 UserId = context.Message.UserId,
                 Name = context.Message.Name,
                 InboxItemId = context.Message.InboxItemId,
+                JobId = context.Message.JobId,
                 Hours = context.Message.hours,
                 DueDate = context.Message.DueDate,
                 StartedDate = context.Message.Started,

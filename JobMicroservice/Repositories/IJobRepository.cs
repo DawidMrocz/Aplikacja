@@ -18,7 +18,7 @@ namespace JobMicroservice.Repositories
         public Task<Job> UpdateJob(UpdateJobCommand command);
 
 
-        public Task<Job> DeleteUserJobFormInbox(DeleteJobFromInboxCommand command);
+        public Task<UserJob> DeleteUserJobFormInbox(DeleteUserJobFromInboxCommand command);
         public Task<Job> UpdateJobFromInbox(UpdateJobFromInboxCommand command);
     }
 }
