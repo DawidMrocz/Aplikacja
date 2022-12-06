@@ -2,6 +2,7 @@ using MassTransit;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Net;
 using System.Security.Claims;
 using UserMicroserivce.Commands;
@@ -9,7 +10,7 @@ using UserMicroserivce.Dtos;
 using UserMicroserivce.Queries;
 using UserMicroservice.Dtos;
 using UserMicroservice.Entities;
-using UserMicroservice.GrpcService;
+using UserMicroservice.Models;
 
 namespace UserMicroservice.Controllers
 {
@@ -18,11 +19,22 @@ namespace UserMicroservice.Controllers
     public class UserController : ControllerBase
     {
         private readonly IMediator _mediator;
+        private readonly UserDbContext _context;
 
-        public UserController(IMediator mediator)
+        public UserController(IMediator mediator,UserDbContext context)
         {
             _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
+            _context = context ?? throw new ArgumentNullException(nameof(context));
+
+                 
         }
+
+        [HttpGet]
+        public async Task<ActionResult<List<UserDto>>> GetUsers()
+        {
+            return Ok(await _context.Users.ToListAsync());
+        }
+
 
         [HttpGet("/profile", Name = "GetProfile")]
         [Authorize]

@@ -51,7 +51,6 @@ namespace InboxMicroservice.GrpcSerivce
             DeleteEmployeeRequest catsRequest = new DeleteEmployeeRequest()
             {
                 InboxItemId = deleteCatsDto.InboxItemId,
-                UserId = deleteCatsDto.UserId,
                 EntryDate = deleteCatsDto.EntryDate,
             };
             return await _catsProtoService.DeleteCatsAsync(catsRequest);

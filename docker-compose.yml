@@ -73,8 +73,17 @@ services:
       dockerfile: ApiGateway/Dockerfile
     networks:
       - my-network
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
     depends_on:
-      - db
+        - usermicroservice
+        - raportsmicroservice
+        - jobmicroservice
+        - inboxmicroservice
+        - catsgrpcmicroservice
+        - catsapimicroservice
+    ports:
+      - "8010:80"
 
   db:
     image: "mcr.microsoft.com/mssql/server:2022-latest"

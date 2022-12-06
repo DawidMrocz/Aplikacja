@@ -79,6 +79,7 @@ namespace InboxMicroservice.Controllers
         {
             DeleteDataCommand deleteDataCommand = new DeleteDataCommand()
             {
+                UserId = int.Parse(User.FindFirst(c => c.Type == ClaimTypes.NameIdentifier).Value),
                 InboxItemId = inboxItemId,
                 EntryData = entryDate,
             };

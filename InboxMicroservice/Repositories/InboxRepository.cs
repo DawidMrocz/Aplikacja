@@ -136,7 +136,9 @@ namespace InboxMicroservice.Repositories
             );
             DeleteRaport deleteRaport = new DeleteRaport
             (
-                inboxItem.InboxItemId
+                command.UserId,
+                inboxItem.InboxItemId,
+                0
             );
             
             await _publishEndpoint.Publish(deleteUserJobFromInbox);
@@ -183,10 +185,6 @@ namespace InboxMicroservice.Repositories
             return true;
         }
 
-
-
-        
-
         public async Task<double> SendData(CreateDataCommand command)
         {
             InboxItem inboxItem = await _context.InboxItems.SingleAsync(i => i.InboxItemId == command.InboxItemId);
@@ -217,12 +215,12 @@ namespace InboxMicroservice.Repositories
                 inboxItem.ProjectNumber,
                 inboxItem.Client,
                 inboxItem.Status,
-                command.Components,
-                command.DrawingsComponents,
-                command.DrawingsAssembly,
+                inboxItem.Components,
+                inboxItem.DrawingsComponents,
+                inboxItem.DrawingsAssembly,
                 inboxItem.DueDate,
-                command.Started,
-                command.Finished
+                inboxItem.Started,
+                inboxItem.Finished
             );
             await _publishEndpoint.Publish(createRaport);
             return response.RecordHours;
@@ -235,16 +233,18 @@ namespace InboxMicroservice.Repositories
             DeleteCatsDto deleteCatsDto = new DeleteCatsDto()
             {
                 InboxItemId = command.InboxItemId,
+                EntryDate = command.EntryData,
             };
             CatsRecordResponse response = await _catsGrpcService.DeleteCats(deleteCatsDto);
-            if(response.RecordHours == 0)
-            {
+         
                 DeleteRaport deleteRaport = new DeleteRaport
                 (
-                    command.InboxItemId
+                    command.UserId,
+                    command.InboxItemId,
+                    response.RecordHours
                 );
                 await _publishEndpoint.Publish(deleteRaport);
-            }
+        
             return response.RecordHours;
         }
     }

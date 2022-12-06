@@ -7,6 +7,7 @@ namespace RaportsMicroservice.Commands.RaportCommands
     {
         public int UserId { get; set; }
         public int InboxItemId { get; set; }
+        public double Hours { get; set; }
     }
     public class DeleteUserRaportRecordCommandHandler : IRequestHandler<DeleteRaportCommand, bool>
     {

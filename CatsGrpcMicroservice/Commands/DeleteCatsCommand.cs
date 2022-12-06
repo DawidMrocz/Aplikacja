@@ -6,7 +6,6 @@ namespace CatsGrpcMicroservice.Commands
 {
     public record DeleteCatsCommand : IRequest<double>
     {
-        public int UserId { get; set; }
         public int InboxItemId { get; set; }
         public string EntryDate { get; set; }
     }

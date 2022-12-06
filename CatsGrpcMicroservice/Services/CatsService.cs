@@ -36,7 +36,6 @@ namespace CatsGrpcMicroservice.Services
         {
             DeleteCatsCommand deleteCatsCommand = new DeleteCatsCommand()
             {
-                UserId = request.UserId,
                 InboxItemId = request.InboxItemId,
                 EntryDate = request.EntryDate,
             };

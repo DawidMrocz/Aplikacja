@@ -59,16 +59,12 @@ namespace RaportsMicroservice.Repositories
             }
             UserRaportRecord? userRaportRecord;
             bool userRaportRecordExist = await _context.UserRaportRecords.AnyAsync(
-                    record => record.ProjectNumber == command.ProjectNumber &&
-                    record.Ecm == command.Ecm &&
-                    record.Gpdm == command.Gpdm);
+                    record => record.InboxItemId == command.InboxItemId);
 
             if(userRaportRecordExist)
             {
                 userRaportRecord = await _context.UserRaportRecords.SingleAsync(
-                    record => record.ProjectNumber == command.ProjectNumber &&
-                    record.Ecm == command.Ecm &&
-                    record.Gpdm == command.Gpdm);
+                    record => record.InboxItemId == command.InboxItemId);
 
                 userRaportRecord.System = command.System;
                 userRaportRecord.Ecm = command.Ecm;
@@ -107,24 +103,55 @@ namespace RaportsMicroservice.Repositories
                         UserRaportId =  myUserRaport.RaportId
                     }
                 };
-                await _context.SaveChangesAsync();
-            }        
-            myUserRaport.UserAllHours = myUserRaport.UserRaportRecords.Sum(h => h.TaskHours);
-            raport.TotalHours = raport.UserRaports.Sum(h => h.UserAllHours);
+
+            }
+            await _context.SaveChangesAsync();
+
+            myUserRaport.UserAllHours = await _context.UserRaportRecords
+                .Where(i => i.UserRaportId == myUserRaport.UserRaportId)
+                .SumAsync(h => h.TaskHours);
+
+            await _context.SaveChangesAsync();
+
+            raport.TotalHours = await _context.UserRaports
+                .Where(d => d.RaportId == raport.RaportId)
+                .SumAsync(h => h.UserAllHours);
+
             await _context.SaveChangesAsync();
             return myUserRaport; 
         }
 
         public async Task<bool> DeleteRaport(DeleteRaportCommand command)
         {
-            Raport raport = await _context.Raports.SingleAsync(d => d.Created == DateTime.Now.ToString("yyyy MM"));
+            string currentRaport = DateTime.Now.ToString("yyyy MM");
+            Raport raport = await _context.Raports.SingleAsync(d => d.Created == currentRaport);
+
             UserRaport userRaport = await _context.UserRaports.SingleAsync(r => r.RaportId == raport.RaportId && r.UserId == command.UserId);
-            UserRaportRecord recordToDelete = await _context.UserRaportRecords.SingleAsync(r => r.InboxItemId == command.InboxItemId && r.UserRaportId == userRaport.UserRaportId);
+
+            UserRaportRecord recordToDelete = await _context.UserRaportRecords.SingleAsync(r => r.InboxItemId == command.InboxItemId);
             if (recordToDelete == null) throw new BadHttpRequestException("Bad request");
-            _context.UserRaportRecords.Remove(recordToDelete);
-            userRaport.UserAllHours = userRaport.UserRaportRecords.Sum(h => h.TaskHours);
-            raport.TotalHours = raport.UserRaports.Sum(h => h.UserAllHours);
+            if (command.Hours == 0)
+            {
+                _context.UserRaportRecords.Remove(recordToDelete);
+                await _context.SaveChangesAsync();
+            }
+            else
+            {
+                recordToDelete.TaskHours = command.Hours;
+                await _context.SaveChangesAsync();
+            }
+            userRaport.UserAllHours = await _context.UserRaportRecords
+                .Where(i => i.UserRaportId == userRaport.UserRaportId)
+                .SumAsync(h => h.TaskHours);
+
             await _context.SaveChangesAsync();
+
+            raport.TotalHours = await _context.UserRaports
+                .Where(d => d.RaportId == raport.RaportId)
+                .SumAsync(h => h.UserAllHours);
+
+            await _context.SaveChangesAsync();
+
             return true;
         }
 

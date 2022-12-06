@@ -5,6 +5,7 @@ namespace InboxMicroservice.Commands.CatsCommands
 {
     public record DeleteDataCommand : IRequest<double>
     {
+        public int UserId { get; set; }
         public int InboxItemId { get; set; }
         public string EntryData { get; set; }
     }

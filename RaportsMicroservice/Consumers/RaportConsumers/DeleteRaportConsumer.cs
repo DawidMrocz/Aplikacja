@@ -16,7 +16,10 @@ namespace RaportsMicroservice.Consumers.RaportConsumers
         {
             DeleteRaportCommand deleteRaportCommand = new DeleteRaportCommand()
             {
+                UserId = context.Message.UserId,
+                Hours = context.Message.hours,
                 InboxItemId = context.Message.InboxItemId
+                
             };
             await _mediator.Send(deleteRaportCommand);
         }

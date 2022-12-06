@@ -15,21 +15,22 @@ namespace CatsGrpcMicroservice.Repositories
             _context = context;
             _cache = cache;
         }
-
-        public async Task<double> CreateCats(CreateCatsCommand command)
+       
+            public async Task<double> CreateCats(CreateCatsCommand command)
         {
+            string currentDate = DateTime.Now.ToString("yyyy MM");
             Employee employee = await _context.Employees.SingleAsync<Employee>(r => r.UserId == command.UserId);
             Cat? userCat;
-            bool catExist = await _context.Cats.AnyAsync(c => c.EmployeeId == employee.EmployeeId && c.CatCreated == command.EntryDate);
+            bool catExist = await _context.Cats.AnyAsync(c => c.EmployeeId == employee.EmployeeId && c.CatCreated == currentDate);
             if (catExist)
             {
-                userCat = await _context.Cats.SingleAsync(c => c.EmployeeId == employee.EmployeeId && c.CatCreated == command.EntryDate);    
+                userCat = await _context.Cats.SingleAsync(c => c.EmployeeId == employee.EmployeeId && c.CatCreated == currentDate);    
             }
             else
             {
                 userCat = new Cat()
                 {
-                    CatCreated = command.EntryDate,
+                    CatCreated = currentDate,
                     EmployeeId = employee.EmployeeId,
                 };
                 await _context.Cats.AddAsync(userCat);
@@ -81,7 +82,10 @@ namespace CatsGrpcMicroservice.Repositories
                 await _context.CatRecordHourss.AddAsync(catRecordHour);
             }
             await _context.SaveChangesAsync();
-            return catRecord.CatRecordHours.Sum(h => h.Hours);
+            double sumOfHours = await _context.CatRecordHourss
+                .Where(r => r.CatRecordId == catRecord.CatRecordId)
+                .SumAsync(h => h.Hours);
+            return sumOfHours;
         }
 
         public async Task<double> DeleteCats(DeleteCatsCommand command)
@@ -94,7 +98,12 @@ namespace CatsGrpcMicroservice.Repositories
                 .SingleAsync(h => h.CatRecordId == catRecord.CatRecordId &&
                 h.Date == command.EntryDate);
             _context.CatRecordHourss.Remove(catRecordHour);
-            return catRecord.CatRecordHours.Sum(h => h.Hours);
+            await _context.SaveChangesAsync();
+
+            double sumOfHours = await _context.CatRecordHourss
+                .Where(r => r.CatRecordId == catRecord.CatRecordId)
+                .SumAsync(h => h.Hours);
+            return sumOfHours;
         }
 
 

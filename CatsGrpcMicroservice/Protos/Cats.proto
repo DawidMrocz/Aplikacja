@@ -7,9 +7,9 @@ service CatsProtoService {
 	rpc CreateCats (CreateEmployeeRequest) returns (CatsRecordResponse);
     rpc DeleteCats (DeleteEmployeeRequest) returns (CatsRecordResponse);
 
-    rpc CreateRaport (CreateRaportRequest) returns (RaportResponse);
-    rpc UpdateRaport (UpdateRaportRequest) returns (RaportResponse);
-    rpc DeleteRaport (DeleteRaportRequest) returns (RaportResponse);
+    //rpc CreateRaport (CreateRaportRequest) returns (RaportResponse);
+   // rpc UpdateRaport (UpdateRaportRequest) returns (RaportResponse);
+    //rpc DeleteRaport (DeleteRaportRequest) returns (RaportResponse);
 
     rpc CreateUserCats (CreateCatsRequest) returns (CatsResponse);
     rpc UpdateUserCats (UpdateCatsRequest) returns (CatsResponse);
@@ -35,28 +35,6 @@ message DeleteCatsRequest {
         int32 UserId = 2;
 }
 
-message CreateRaportRequest {
-
-}
-message UpdateRaportRequest {
-
-}
-message DeleteRaportRequest {
-	    int32 Id = 1;
-        int32 UserId = 2;
-        string Name = 3;
-        string CCtr = 4;
-        string ActTyp = 5;
-}
-
-message RaportResponse{
-
-}
-
-
-
-
-
 message CreateEmployeeRequest {
         int32 UserId = 1;
         string Name = 2;
@@ -79,10 +57,8 @@ message CreateCatsRecordHoursModel {
 }
 
 message DeleteEmployeeRequest {
-	    int32 Id = 1;
-        int32 InboxItemId =2;
-        int32 UserId = 3;
-        string EntryDate = 4;
+        int32 InboxItemId =1;
+        string EntryDate = 2;
 }
 message CatsResponse {
   bool Success = 1;
